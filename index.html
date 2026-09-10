@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الماسح الذكي الاحترافي - تحويل المستندات والكاميرا إلى إكسل</title>
+
+    <!-- SEO & Search Engine Optimization Meta Tags -->
+    <meta name="description" content="تطبيق الماسح الذكي المطور لتحويل الصور والفواتير والجداول الورقية إلى ملفات إكسل XLSX بدقة فائقة باستخدام الذكاء الاصطناعي Gemini Vision وتقنية OCR.">
+    <meta name="keywords" content="تحويل صورة الى اكسل, تحويل فاتورة الى Excel, OCR عربي, استخراج الجداول من الصور, Gemini Vision OCR, Excel Pro">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="author" content="الماسح الذكي Excel Pro">
+    <link rel="canonical" href="./">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="الماسح الذكي الاحترافي - تحويل المستندات والكاميرا إلى إكسل">
+    <meta property="og:description" content="تحويل الصور والمستندات والجداول الورقية إلى ملفات إكسل قابلة للتعديل والتحليل بسهولة.">
+    <meta property="og:locale" content="ar_AR">
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+
+    <!-- Schema.org JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "الماسح الذكي جداول Excel Pro",
+      "operatingSystem": "All",
+      "applicationCategory": "BusinessApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "تطبيق ويب متكامل يستخرج الجداول والبيانات من الصور وتحويلها إلى ملفات إكسل XLSX منظمة."
+    }
+    </script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                            700: '#0e7490',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Tesseract.js for OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js" defer></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+        
+        :root {
+            --bg-main: #070a12;
+            --bg-card: rgba(18, 26, 43, 0.85);
+            --bg-card-solid: #111827;
+            --bg-nav: rgba(11, 15, 25, 0.88);
+            --bg-input: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.12);
+            --table-head-bg: #0f172a;
+            --table-row-hover: rgba(16, 185, 129, 0.12);
+            --table-cell-border: #1e293b;
+            --input-text: #f8fafc;
+        }
+
+        html.light {
+            --bg-main: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --bg-card-solid: #ffffff;
+            --bg-nav: rgba(255, 255, 255, 0.92);
+            --bg-input: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --table-head-bg: #f1f5f9;
+            --table-row-hover: rgba(16, 185, 129, 0.08);
+            --table-cell-border: #cbd5e1;
+            --input-text: #0f172a;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-bar {
+            background: var(--bg-nav);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 4px;
+        }
+
+        .scanner-line {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #10b981, #06b6d4, transparent);
+            box-shadow: 0 0 18px #10b981;
+            animation: scan 1.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes scan {
+            0% { top: 2%; opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { top: 96%; opacity: 0.3; }
+        }
+
+        .toast-slide {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+
+        .editable-cell-input {
+            color: var(--input-text) !important;
+            background-color: transparent;
+        }
+
+        .table-box {
+            background-color: var(--bg-card-solid);
+            border-color: var(--border-color);
+        }
+
+        th {
+            background-color: var(--table-head-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--table-cell-border) !important;
+        }
+
+        td {
+            border-color: var(--table-cell-border) !important;
+        }
+
+        .data-row:hover {
+            background-color: var(--table-row-hover);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <nav class="nav-bar backdrop-blur-xl sticky top-0 z-40 shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-4">
+            
+            <!-- Brand & Logo -->
+            <div class="flex items-center gap-3">
+                <div class="relative flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-600 shadow-md shadow-emerald-500/20 text-white p-2">
+                    <i data-lucide="file-spreadsheet" class="w-6 h-6"></i>
+                    <span class="absolute -top-1 -left-1 flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    </span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-base sm:text-lg font-black tracking-wide text-slate-900 dark:text-white">الماسح الذكي <span class="bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 bg-clip-text text-transparent">Excel Pro</span></h1>
+                        <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-500/20 shadow-xs">IMG2EXCEL</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium hidden sm:block">تحويل الصور والمستندات إلى جداول إكسل بدقة الذكاء الاصطناعي</p>
+                </div>
+            </div>
+            
+            <!-- Control Actions Group -->
+            <div class="flex flex-wrap items-center gap-2.5">
+                
+                <!-- AI Engine Segmented Control Switcher -->
+                <div class="bg-slate-200/80 dark:bg-slate-900/90 p-1 rounded-xl border border-slate-300 dark:border-slate-800 flex items-center shadow-inner">
+                    <button id="engineGemini" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md shadow-emerald-600/30" onclick="setEngine('gemini')">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
+                        <span>Gemini AI</span>
+                    </button>
+                    <button id="engineTesseract" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all" onclick="setEngine('tesseract')">
+                        <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+                        <span>محلي (OCR)</span>
+                    </button>
+                </div>
+
+                <!-- Document Preset Selector -->
+                <div class="flex items-center gap-1.5 bg-slate-200/80 dark:bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-800 text-xs">
+                    <i data-lucide="file-type" class="w-3.5 h-3.5 text-teal-500"></i>
+                    <span class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">النموذج:</span>
+                    <select id="docPresetSelect" class="bg-transparent outline-none cursor-pointer font-bold text-xs text-slate-800 dark:text-slate-200">
+                        <option value="auto" class="bg-white dark:bg-slate-900">جدول عام (تلقائي)</option>
+                        <option value="receipt" class="bg-white dark:bg-slate-900">فاتورة / إيصال مالي</option>
+                        <option value="attendance" class="bg-white dark:bg-slate-900">كشف حضور / موظفين</option>
+                        <option value="financial" class="bg-white dark:bg-slate-900">تقرير مالي / ميزانية</option>
+                    </select>
+                </div>
+
+                
+
+                <!-- Theme Toggle Button -->
+                <button id="btnThemeToggle" onclick="toggleTheme()" class="flex items-center justify-center p-2 bg-slate-200/80 dark:bg-slate-900/90 hover:bg-slate-300 dark:hover:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-800 text-xs font-bold transition-all text-slate-700 dark:text-slate-300" title="التبديل بين الوضع المضيء والمظلم">
+                    <i id="themeIcon" data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
+                    <span id="themeLabel" class="sr-only">الوضع المضيء</span>
+                </button>
+
+                <!-- Essential Legal & Info Pages Button -->
+                <button onclick="openLegalModal('about')" class="flex items-center gap-1.5 bg-slate-200/80 dark:bg-slate-900/90 hover:bg-slate-300 dark:hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-cyan-500 dark:hover:text-cyan-400 transition-all" title="الصفحات الأساسية والمعلومات القانونية">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
+                    <span class="hidden sm:inline">الصفحات الأساسية</span>
+                </button>
+
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-5 flex-1 max-w-7xl">
+
+        <!-- Header Status Banner -->
+        <section class="glass-panel rounded-2xl p-4 mb-5 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-indigo-500/10 text-indigo-500 rounded-xl border border-indigo-500/20">
+                    <i data-lucide="gauge" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-xs sm:text-sm font-bold">وضع المعالجة: <span id="currentEngineLabel" class="text-cyan-500">Gemini Vision AI + الضغط الذكي</span></h2>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="engineDescription">يتم استخراج الجداول والمعطيات بآلية الضغط المسبق والتصنيف الذكي للبيانات.</p>
+                </div>
+            </div>
+
+            <!-- Action buttons header -->
+            <div class="flex items-center gap-2">
+                <button id="btnHistoryToggle" onclick="toggleHistoryDrawer()" class="text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold px-3 py-2 rounded-xl transition-all border border-slate-300 dark:border-slate-700 flex items-center gap-1.5">
+                    <i data-lucide="history" class="w-4 h-4 text-cyan-500"></i>
+                    <span>سجل المسوحات (<span id="historyCount">0</span>)</span>
+                </button>
+                <button id="btnToggleSplitView" onclick="toggleSplitView()" class="hidden text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold px-3 py-2 rounded-xl transition-all border border-slate-300 dark:border-slate-700 flex items-center gap-1.5">
+                    <i data-lucide="columns-2" class="w-4 h-4 text-indigo-500"></i>
+                    <span id="splitViewBtnText">المقارنة الجانبية</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Main Grid Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+            <!-- Left Column: Camera, Capture & Filter Controls -->
+            <div id="leftColumn" class="lg:col-span-5 flex flex-col gap-4 transition-all duration-300">
+                <div class="glass-panel rounded-2xl p-4 flex flex-col gap-4">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/50 pb-3">
+                        <h2 class="font-bold text-sm flex items-center gap-2">
+                            <i data-lucide="camera" class="w-4 h-4 text-cyan-500"></i>
+                            التقاط وإعداد المستند
+                        </h2>
+                        <span id="captureStatus" class="text-[11px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2.5 py-0.5 rounded-full font-medium border border-slate-300 dark:border-slate-700">جاهز للالتقاط</span>
+                    </div>
+
+                    <!-- Viewport Canvas / Video Stream -->
+                    <div class="relative rounded-xl overflow-hidden bg-slate-900 aspect-[4/3] flex items-center justify-center border border-slate-800 shadow-2xl group">
+                        
+                        <!-- Drag and drop zone prompt -->
+                        <div id="startPrompt" class="text-center p-6 flex flex-col items-center justify-center z-10">
+                            <div class="w-16 h-16 bg-slate-800/90 text-cyan-400 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform border border-slate-700 shadow-lg">
+                                <i data-lucide="camera" class="w-8 h-8"></i>
+                            </div>
+                            <p class="text-white font-bold text-sm mb-1">التقط صورة للجدول أو اسحب الملف هنا</p>
+                            <p class="text-xs text-slate-400 mb-4 max-w-xs">يدعم الصور عالية الدقة (JPG, PNG, WebP) والمسح المباشر</p>
+                            
+                            <div class="flex flex-wrap justify-center gap-2">
+                                <button id="btnStartCamera" class="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-lg transition-all flex items-center gap-2">
+                                    <i data-lucide="video" class="w-4 h-4"></i> تشغيل الكاميرا
+                                </button>
+                                <button onclick="document.getElementById('fileInput').click()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl border border-slate-700 transition-all flex items-center gap-2">
+                                    <i data-lucide="upload" class="w-4 h-4"></i> رفع ملف صورة
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Video Stream View -->
+                        <video id="videoFeed" class="hidden absolute inset-0 w-full h-full object-cover" autoplay playsinline></video>
+
+                        <!-- Camera Guide -->
+                        <div id="cameraGuide" class="hidden absolute inset-4 border-2 border-dashed border-cyan-400/80 rounded-xl pointer-events-none flex flex-col items-center justify-between p-3 z-20">
+                            <span class="text-[10px] bg-cyan-600/90 text-white px-2 py-0.5 rounded-md backdrop-blur-md font-bold">إطار التركيز الحاد</span>
+                            <div class="scanner-line"></div>
+                            <span class="text-[10px] bg-slate-950/80 text-slate-300 px-3 py-1 rounded-full backdrop-blur-md">ضع الجدول بالكامل داخل الحدود لنتيجة فائقة</span>
+                        </div>
+
+                        <!-- Preview Canvas -->
+                        <canvas id="previewCanvas" class="hidden absolute inset-0 w-full h-full object-contain"></canvas>
+
+                        <!-- Hidden Processing Canvases & File Input -->
+                        <canvas id="rawCaptureCanvas" class="hidden"></canvas>
+                        <input type="file" id="fileInput" accept="image/*" class="hidden">
+                    </div>
+
+                    <!-- Image Editing Toolbar -->
+                    <div id="imageEditToolbar" class="hidden flex items-center justify-between bg-slate-200 dark:bg-slate-900 p-2 rounded-xl border border-slate-300 dark:border-slate-800 text-xs">
+                        <div class="flex items-center gap-1">
+                            <button onclick="rotateImage(-90)" class="p-2 hover:bg-slate-300 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center gap-1" title="تدوير 90 درجة لليسار">
+                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="rotateImage(90)" class="p-2 hover:bg-slate-300 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center gap-1" title="تدوير 90 درجة لليمين">
+                                <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="toggleFiltersPanel()" class="p-2 hover:bg-slate-300 dark:hover:bg-slate-800 text-cyan-600 dark:text-cyan-400 rounded-lg transition-colors flex items-center gap-1 font-semibold" title="ضبط الألوان وتوضيح النصوص">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                                <span>تحسين الصورة</span>
+                            </button>
+                        </div>
+                        <span class="text-[10px] text-slate-500 font-mono px-2" id="imgDimensionsText">-- x -- px</span>
+                    </div>
+
+                    <!-- Image Filters Panel -->
+                    <div id="filterControls" class="hidden space-y-3 bg-slate-200 dark:bg-slate-900/90 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 text-xs">
+                        <div class="flex items-center justify-between font-bold">
+                            <span class="flex items-center gap-1.5"><i data-lucide="wand-2" class="w-3.5 h-3.5 text-cyan-500"></i> معالجة التباين للحصول على أقصى دقة</span>
+                            <button id="btnResetFilters" class="text-cyan-600 dark:text-cyan-400 hover:underline font-normal text-[11px]">إعادة ضبط</button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-slate-500 dark:text-slate-400 mb-1 text-[11px]">التباين (Contrast)</label>
+                                <input type="range" id="contrastSlider" min="0" max="250" value="125" class="w-full accent-cyan-500">
+                            </div>
+                            <div>
+                                <label class="block text-slate-500 dark:text-slate-400 mb-1 text-[11px]">السطوع (Brightness)</label>
+                                <input type="range" id="brightnessSlider" min="0" max="200" value="105" class="w-full accent-cyan-500">
+                            </div>
+                        </div>
+
+                        <div class="pt-1 flex items-center justify-between border-t border-slate-300 dark:border-slate-800">
+                            <label class="inline-flex items-center gap-2 cursor-pointer text-[11px]">
+                                <input type="checkbox" id="grayscaleToggle" checked class="rounded accent-cyan-500 w-3.5 h-3.5">
+                                فلتر أبيض/أسود (إزالة الظلال المزعجة)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Capture & Process Action Buttons -->
+                    <div class="flex flex-col gap-2 pt-1">
+                        <div class="flex gap-2">
+                            <button id="btnCapture" class="hidden flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all">
+                                <i data-lucide="camera" class="w-4 h-4"></i> التقاط الصورة الآن
+                            </button>
+                            <button id="btnRetake" class="hidden flex-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 border border-slate-300 dark:border-slate-700 transition-all">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i> صورة جديدة
+                            </button>
+                        </div>
+
+                        <button id="btnProcess" class="hidden w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-black py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-xl transition-all text-sm">
+                            <i data-lucide="sparkles" class="w-5 h-5 text-yellow-300"></i> قراءة المستند واستخراج جدول Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Indicator -->
+                <div id="progressCard" class="hidden glass-panel rounded-2xl p-4 border border-indigo-500/30 space-y-3">
+                    <div class="flex justify-between items-center text-xs">
+                        <span id="statusText" class="font-bold text-cyan-500 flex items-center gap-2">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-cyan-500"></i>
+                            جاري القراءة والتحليل الهيكلي...
+                        </span>
+                        <span id="progressText" class="font-mono font-bold text-cyan-500">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-300 dark:border-slate-800">
+                        <div id="progressBar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 text-center">تطبيق ضغط مسبق للسرعة واستخراج الخلايا بذكاء عالي</p>
+                </div>
+            </div>
+
+            <!-- Right Column: Data Table Editor & Analytics -->
+            <div id="rightColumn" class="lg:col-span-7 flex flex-col">
+                <div class="glass-panel rounded-2xl p-4 flex-1 flex flex-col min-h-[580px]">
+                    
+                    <!-- Header Actions -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3 border-b border-slate-200 dark:border-slate-700/50 pb-3">
+                        <div>
+                            <h2 class="font-bold text-sm flex items-center gap-2">
+                                <i data-lucide="table-properties" class="w-4 h-4 text-emerald-500"></i>
+                                جدول البيانات المحول (قابل للتعديل الفوري)
+                            </h2>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">اضغط على أي خلية لتعديل محتواها مباشرة</p>
+                        </div>
+
+                        <!-- Data Actions -->
+                        <div id="tableActions" class="hidden flex flex-wrap gap-1.5">
+                            <button onclick="cleanAndNormalizeNumbers()" class="px-2.5 py-1.5 text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-cyan-600 dark:text-cyan-400 font-semibold rounded-lg flex items-center gap-1 border border-slate-300 dark:border-slate-700 transition-colors" title="تحويل الأرقام العربية الهندية إلى أرقام إنجليزية قياسية">
+                                <i data-lucide="binary" class="w-3.5 h-3.5"></i> توحيد الأرقام
+                            </button>
+                            <button onclick="cleanEmptyRowsCols()" class="px-2.5 py-1.5 text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-semibold rounded-lg flex items-center gap-1 border border-slate-300 dark:border-slate-700 transition-colors" title="حذف الصفوف والأعمدة الفارغة تلقائياً">
+                                <i data-lucide="sparkle" class="w-3.5 h-3.5"></i> تنظيف
+                            </button>
+                            <button id="btnAddRow" class="px-2.5 py-1.5 text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-semibold rounded-lg flex items-center gap-1 border border-slate-300 dark:border-slate-700 transition-colors">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> صف
+                            </button>
+                            <button id="btnAddCol" class="px-2.5 py-1.5 text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-semibold rounded-lg flex items-center gap-1 border border-slate-300 dark:border-slate-700 transition-colors">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> عمود
+                            </button>
+                            <button id="btnCopyClipboard" onclick="copyTableToClipboard()" class="px-3 py-1.5 text-xs bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-600 dark:text-indigo-300 font-bold rounded-lg flex items-center gap-1.5 border border-indigo-500/30 transition-colors">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> نسخ
+                            </button>
+                            <button id="btnExportExcel" class="px-3.5 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-lg flex items-center gap-1.5 shadow-lg transition-all">
+                                <i data-lucide="download" class="w-4 h-4"></i> تصدير Excel (.xlsx)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search & Formula Analytics Bar -->
+                    <div id="tableAnalyticsBar" class="hidden mb-3 bg-slate-200 dark:bg-slate-900/90 p-2.5 rounded-xl border border-slate-300 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div class="flex items-center gap-2 flex-1 min-w-[180px]">
+                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400"></i>
+                            <input type="text" id="tableSearchInput" oninput="filterTableRows()" placeholder="تصفية وبحث في الجدول..." class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs w-full outline-none focus:border-cyan-500">
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 text-[11px] font-mono">
+                            <span id="statSum" class="bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-800 text-cyan-600 dark:text-cyan-400">المجموع: 0</span>
+                            <span id="statAvg" class="bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-800 text-indigo-600 dark:text-indigo-300">المتوسط: 0</span>
+                            <span id="statCount" class="bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-800 text-slate-500">الخلايا: 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Table Box -->
+                    <div id="tableContainer" class="table-box flex-1 border rounded-xl overflow-auto relative custom-scrollbar">
+                        
+                        <!-- Empty State View -->
+                        <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+                            <div class="w-16 h-16 bg-slate-200 dark:bg-slate-800/60 text-indigo-500 rounded-2xl flex items-center justify-center mb-3 border border-slate-300 dark:border-slate-700/50 shadow-lg">
+                                <i data-lucide="file-spreadsheet" class="w-8 h-8"></i>
+                            </div>
+                            <h3 class="font-bold text-sm mb-1">لا توجد بيانات معروضة حالياً</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">
+                                قم بالتقاط صورة للمستند الورقي أو الفاتورة، وستظهر البيانات هنا في جدول شبكي منظم بدقة.
+                            </p>
+                        </div>
+
+                        <!-- Data Table -->
+                        <table id="dataTable" class="hidden w-full text-right border-collapse min-w-max text-xs">
+                            <thead id="dataTableHead" class="sticky top-0 z-10 border-b"></thead>
+                            <tbody id="dataTableBody" class="divide-y divide-slate-300 dark:divide-slate-800"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Footer Details -->
+                    <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mt-2 px-1">
+                        <span id="rowCountText">عدد الصفوف: 0</span>
+                        <span id="colCountText">عدد الأعمدة: 0</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- AdSense Slot Container -->
+        <div id="adsense-top-banner" class="my-6 glass-panel rounded-2xl p-4 text-center min-h-[90px] flex flex-col items-center justify-center border border-dashed border-slate-300 dark:border-slate-700">
+            <span class="text-[10px] text-slate-500 font-mono mb-1">إعلان / Advertisement</span>
+            <p class="text-xs text-slate-400">مساحة مخصصة لإعلانات Google AdSense (أعلى الصفحة)</p>
+        </div>
+
+        <!-- SEO Rich Content Section -->
+        <section class="mt-10 space-y-8 glass-panel p-6 sm:p-8 rounded-2xl border">
+            <article class="space-y-4">
+                <h2 class="text-xl font-extrabold flex items-center gap-2">
+                    <i data-lucide="book-open-check" class="w-5 h-5 text-cyan-500"></i>
+                    دليل استخدام الماسح الذكي لتحويل الصور إلى جدول Excel
+                </h2>
+                <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    يعتبر <strong>الماسح الذكي جداول Excel Pro</strong> أداة متطورة تعتمد على أحدث تقنيات الذكاء الاصطناعي البصري (Gemini Vision AI) والتعرف الضوئي على الحروف (OCR). تتيح لك هذه الأداة التقاط صور المستندات، الفواتير، كشوفات الحضور، أو الميزانيات المالية واستخراج البيانات فوراً إلى جداول إكسل تفاعلية قابلة للتعديل والتصدير بضغطة زر.
+                </p>
+            </article>
+
+            <!-- How it works grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-200/60 dark:bg-slate-900/80 p-4 rounded-xl border border-slate-300 dark:border-slate-800 space-y-2">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-500 flex items-center justify-center font-bold text-sm">1</div>
+                    <h3 class="font-bold text-sm">التقاط أو رفع الصورة</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">قم بتشغيل الكاميرا مباشرة من المتصفح أو قم برفع ملف صورة من جهازك (JPG, PNG, WebP).</p>
+                </div>
+                <div class="bg-slate-200/60 dark:bg-slate-900/80 p-4 rounded-xl border border-slate-300 dark:border-slate-800 space-y-2">
+                    <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-500 flex items-center justify-center font-bold text-sm">2</div>
+                    <h3 class="font-bold text-sm">التحليل وقراءة الخلايا</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">يتولى المحرك الذكي تحديد الصفوف والأعمدة واستخراج النصوص والأرقام بآلية فائقة.</p>
+                </div>
+                <div class="bg-slate-200/60 dark:bg-slate-900/80 p-4 rounded-xl border border-slate-300 dark:border-slate-800 space-y-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold text-sm">3</div>
+                    <h3 class="font-bold text-sm">التعديل والتصدير لإكسل</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">يمكنك تعديل أي خلية، توحيد الأرقام العربية والإنجليزي، وتصدير الملف بصيغة XLSX مباشرة.</p>
+                </div>
+            </div>
+
+            <!-- Application Specific FAQ Section -->
+            <div class="space-y-4 pt-4 border-t border-slate-300 dark:border-slate-800">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <i data-lucide="help-circle" class="w-5 h-5 text-indigo-500"></i>
+                    الأسئلة الشائعة حول أداء واستخدام الماسح الذكي
+                </h3>
+                
+                <div class="space-y-3 text-xs sm:text-sm">
+                    <details class="bg-slate-200/50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 cursor-pointer group" open>
+                        <summary class="font-bold list-none flex items-center justify-between">
+                            <span>كيف أحصل على أفضل دقة واستخراج صحيحة للبيانات من الصورة؟</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">للحصول على أفضل النتائج، احرص على التقاط الصورة تحت إضاءة جيدة وأن يكون الجدول في وضع مستقيم ومسطح، واستخدم خيارات "تحسين الصورة" داخل التطبيق لزيادة التباين وضبط الأبيض والأسود قبل البدء في القراءة.</p>
+                    </details>
+
+                    <details class="bg-slate-200/50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 cursor-pointer group">
+                        <summary class="font-bold list-none flex items-center justify-between">
+                            <span>هل يضمن التطبيق أمان وخصوصية مستنداتي وصوري المرفوعة؟</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">نعم بالكامل! تتم معالجة الصور مؤقتاً لحساب وقراءة خلايا الجدول فقط. لا نقوم بتخزين أو مشاركة أي من صورك أو ملفاتك المالية على خوادم دائمية، ويمكنك مسح كافة السجلات في أي وقت.</p>
+                    </details>
+
+                    <details class="bg-slate-200/50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 cursor-pointer group">
+                        <summary class="font-bold list-none flex items-center justify-between">
+                            <span>ما هي صيغ الصور والملفات التي يمكنني تحويلها إلى Excel؟</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">يدعم تطبيق الماسح الذكي جميع صيغ الصور الشهيرة بما في ذلك JPG, PNG, WebP, BMP، بالإضافة إلى إمكانية المسح الضوئي المباشر من كاميرا الجوال أو المحمول.</p>
+                    </details>
+
+                    <details class="bg-slate-200/50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 cursor-pointer group">
+                        <summary class="font-bold list-none flex items-center justify-between">
+                            <span>كيف أتغلب على مشكلة تداخل الأرقام الهندية والعربية (١،٢،٣ مقابل 1,2,3)؟</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">نوفر زر "توحيد الأرقام" أعلى شريط الجدول. بنقرة واحدة يتم تحويل جميع الأرقام المكتوبة بالصيغة العربية الشرقية إلى أرقام إنجليزية قياسية لتسهيل العمليات الحسابية والصيغ في ملفات Excel.</p>
+                    </details>
+
+                    <details class="bg-slate-200/50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 cursor-pointer group">
+                        <summary class="font-bold list-none flex items-center justify-between">
+                            <span>هل يعمل التطبيق في حالة عدم توفر شبكة إنترنت؟</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">يمكنك اختيار "محرك المحلي (OCR)" من شريط الوضع العلوي لقراءة المستندات مباشرة عبر جهازك بدون إنترنت باستخدام تقنية Tesseract OCR، بينما يوفر خيار Gemini Vision أقصى دقة للجداول المعقدة عبر الشبكة.</p>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-10 border-t border-slate-300 dark:border-slate-800 bg-slate-200/80 dark:bg-slate-950/80 py-6 text-center text-xs text-slate-500">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3">
+            <p>© 2026 الماسح الذكي جداول Excel Pro - جميع الحقوق محفوظة.</p>
+            <div class="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-[11px] text-slate-500 dark:text-slate-400 font-bold">
+                <button onclick="openLegalModal('about')" class="hover:text-cyan-500 transition-colors">من نحن</button>
+                <span>•</span>
+                <button onclick="openLegalModal('privacy')" class="hover:text-cyan-500 transition-colors">سياسة الخصوصية</button>
+                <span>•</span>
+                <button onclick="openLegalModal('terms')" class="hover:text-cyan-500 transition-colors">شروط الاستخدام</button>
+                <span>•</span>
+                <button onclick="openLegalModal('contact')" class="hover:text-cyan-500 transition-colors">اتصل بنا</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AdSense Compliant Essential Pages Modal (About, Privacy Policy, Terms of Use, Contact) -->
+    <div id="legalModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
+        <div class="glass-panel w-full max-w-4xl max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl relative border border-slate-300 dark:border-slate-700">
+            
+            <!-- Modal Header with Navigation Tabs -->
+            <div class="p-4 border-b border-slate-300 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-100/50 dark:bg-slate-900/50">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl border border-emerald-500/20">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">المركز القانوني والمعلومات</h3>
+                        <p class="text-[10px] sm:text-xs text-slate-500">معلومات التطبيق، سياسات الاستخدام والخصوصية المعتمدة</p>
+                    </div>
+                </div>
+                <button onclick="closeLegalModal()" class="p-1.5 text-slate-400 hover:text-rose-500 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Tab Switcher Navigation -->
+            <div class="flex border-b border-slate-300 dark:border-slate-800 bg-slate-200/60 dark:bg-slate-950/60 px-4 pt-2 gap-1 overflow-x-auto custom-scrollbar text-xs font-bold">
+                <button id="tabBtnAbout" onclick="switchLegalTab('about')" class="px-4 py-2.5 rounded-t-xl transition-all border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-cyan-500 flex items-center gap-1.5 whitespace-nowrap">
+                    <i data-lucide="info" class="w-4 h-4"></i> من نحن
+                </button>
+                <button id="tabBtnPrivacy" onclick="switchLegalTab('privacy')" class="px-4 py-2.5 rounded-t-xl transition-all border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-cyan-500 flex items-center gap-1.5 whitespace-nowrap">
+                    <i data-lucide="lock" class="w-4 h-4"></i> سياسة الخصوصية
+                </button>
+                <button id="tabBtnTerms" onclick="switchLegalTab('terms')" class="px-4 py-2.5 rounded-t-xl transition-all border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-cyan-500 flex items-center gap-1.5 whitespace-nowrap">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> شروط الاستخدام
+                </button>
+                <button id="tabBtnContact" onclick="switchLegalTab('contact')" class="px-4 py-2.5 rounded-t-xl transition-all border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-cyan-500 flex items-center gap-1.5 whitespace-nowrap">
+                    <i data-lucide="mail" class="w-4 h-4"></i> اتصل بنا
+                </button>
+            </div>
+
+            <!-- Modal Scrollable Content Viewport -->
+            <div class="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar text-xs sm:text-sm leading-relaxed space-y-6 text-slate-700 dark:text-slate-300">
+                
+                <!-- TAB 1: ABOUT US (من نحن) -->
+                <div id="legalTabAbout" class="space-y-4">
+                    <div class="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 p-4 rounded-2xl border border-emerald-500/20">
+                        <h4 class="font-black text-base text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-5 h-5 text-emerald-500"></i>
+                            حول أداة الماسح الذكي Excel Pro
+                        </h4>
+                        <p>
+                            مرحباً بكم في <strong>الماسح الذكي Excel Pro</strong>، المنصة المتقدمة المتخصصة في تحويل المستندات الورقية، الفواتير، الإيصالات، الجداول المالية، وكشوف الحضور إلى ملفات إكسل (XLSX) تفاعلية وقابلة للتعديل والتحليل خلال ثوانٍ معدودة.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div class="bg-slate-100 dark:bg-slate-900/70 p-4 rounded-xl border border-slate-300 dark:border-slate-800 space-y-2">
+                            <h5 class="font-bold text-sm text-cyan-600 dark:text-cyan-400 flex items-center gap-1.5">
+                                <i data-lucide="target" class="w-4 h-4"></i> رؤيتنا وهدفنا
+                            </h5>
+                            <p class="text-xs text-slate-600 dark:text-slate-400">
+                                تمكين أصحاب الأعمال، المحاسبين، الموظفين، والطلاب من اختصار ساعات العمل اليدوي في إدخال البيانات، عبر تقديم حل تقني مجاني، آمن، وفائق الدقة يستعين بتقنيات الذكاء الاصطناعي الرائدة.
+                            </p>
+                        </div>
+                        <div class="bg-slate-100 dark:bg-slate-900/70 p-4 rounded-xl border border-slate-300 dark:border-slate-800 space-y-2">
+                            <h5 class="font-bold text-sm text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                                <i data-lucide="cpu" class="w-4 h-4"></i> التقنيات المستخدمة
+                            </h5>
+                            <p class="text-xs text-slate-600 dark:text-slate-400">
+                                ندمج بين أحدث نماذج الذكاء الاصطناعي البصري (Gemini Vision AI) لمعالجة الهياكل المعقدة، والتعرف الضوئي على الحروف المحلي (Tesseract OCR) لضمان السرعة العالية واستمرارية العمل.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <h5 class="font-bold text-sm text-slate-900 dark:text-white">لماذا يفضل المستخدمون الماسح الذكي؟</h5>
+                        <ul class="list-disc list-inside space-y-1 text-xs text-slate-600 dark:text-slate-400">
+                            <li>تحويل دقيق للجداول العربية والإنجليزية والأرقام المزدوجة.</li>
+                            <li>معالجة سريعة مع خيارات المعاينة والضغط الذكي قبل التحليل.</li>
+                            <li>تحرير فوري للبيانات، تنظيف الصفوف الفارغة، وتوحيد الأرقام بضغطة زر.</li>
+                            <li>احترام كامل لخصوصية المستخدم: لا نقم بتخزين صورك أو مستنداتك بشكل دائم على خوادمنا.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- TAB 2: PRIVACY POLICY -->
+                <div id="legalTabPrivacy" class="hidden space-y-4">
+                    <div class="bg-amber-500/10 p-3.5 rounded-xl border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                        <i data-lucide="shield-alert" class="w-5 h-5 shrink-0"></i>
+                        <span>تعتبر هذه السياسة وثيقة قانونية متوافقة مع شروط حماية البيانات العامة (GDPR & CCPA).</span>
+                    </div>
+
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">1. مقدمة والتزام بالخصوصية</h4>
+                    <p class="text-xs">
+                        في <strong>الماسح الذكي Excel Pro</strong>، نولي أهمية قصوى لخصوصية زوارنا ومستخدمينا. توضح هذه الوثيقة أنواع المعلومات التي نجمعها وكيفية استخدامها وحمايتها.
+                    </p>
+
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">2. معالجة الصور والمستندات المرفوعة</h4>
+                    <p class="text-xs">
+                        عند استخدام الكاميرا أو رفع صورة جدول، يتم معالجة الصورة مؤقتاً في الذاكرة لتطبيق خوارزميات الاستخراج واستعادة النصوص والبيانات الرقمية. <strong>لا يتم بيع أو مشاركة أو تخزين صور مستنداتك الشخصية أو المالية بشكل دائم على خوادمنا.</strong>
+                    </p>
+
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">3. ملفات تعريف الارتباط والتحليلات</h4>
+                    <p class="text-xs">
+                        تستخدم هذه المنصة خدمات التحليل القياسية اختياريًا لجمع بيانات إحصائية غير معرّفة للشخصية بهدف تحسين تجربة المستخدم وأداء التطبيق.
+                    </p>
+
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">4. حقوق الخصوصية (GDPR / CCPA)</h4>
+                    <p class="text-xs">
+                        يحق لكل مستخدم طلب معرفة البيانات المخزنة محلياً (مثل سجل المسوحات في متصفحك) أو مسحها بالكامل في أي وقت باستخدام خيار "مسح السجل" المتوفر داخل التطبيق.
+                    </p>
+                </div>
+
+                <!-- TAB 3: TERMS OF USE (شروط الاستخدام) -->
+                <div id="legalTabTerms" class="hidden space-y-4">
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">1. الموافقة على الشروط</h4>
+                    <p class="text-xs">
+                        باستخدامك لموقع وتطبيق <strong>الماسح الذكي Excel Pro</strong>، فإنك تقر بالموافقة الكاملة على شروط الاستخدام الموضحة هنا وأي تعديلات تطرأ عليها مستقبلاً.
+                    </p>
+
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">2. الاستخدام المسموح به والحظر</h4>
+                    <p class="text-xs">
+                        يُسمح باستخدام الخدمة للأغراض الشخصية، المهنية، والتعليمية المباشرة. يُمنع منعاً باتاً:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1 text-xs text-slate-600 dark:text-slate-400 mr-2">
+                        <li>رفع أو مسح مستندات مزورة، غير قانونية، أو تنتهك حقوق الملكية الفكرية للآخرين.</li>
+                        <li>محاولة استغلال الخدمة لإرسال برمجيات خبيثة أو إغراق النظام بطلبات مؤتمتة ضارة (Bot Attack).</li>
+                    </ul>
+
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">3. إخلاء المسؤولية عن دقة النتائج</h4>
+                    <p class="text-xs">
+                        يعتمد التطبيق على خوارزميات الذكاء الاصطناعي وتقنية OCR لاستخراج النصوص والجداول. بالرغم من تحقيق دقة عالية جداً، إلا أنه يتعين على المستخدم **مراجعة وتدقيق البيانات المستخرجة والعمليات الحسابية** قبل الاعتماد النهائي عليها في المعاملات المالية أو الرسمية.
+                    </p>
+                </div>
+
+                <!-- TAB 4: CONTACT US (اتصل بنا) -->
+                <div id="legalTabContact" class="hidden space-y-4">
+                    <div class="bg-indigo-500/10 p-4 rounded-xl border border-indigo-500/20 text-xs space-y-1">
+                        <h4 class="font-bold text-sm text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                            <i data-lucide="headphones" class="w-4 h-4"></i> نحن هنا لمساعدتك دائماً
+                        </h4>
+                        <p class="text-slate-600 dark:text-slate-400">
+                            هل لديك استفسار، اقتراح، أو ملاحظة حول أداء الماسح الذكي؟ يسعدنا التواصل معك عبر النموذج أدناه.
+                        </p>
+                    </div>
+
+                    <form id="contactForm" onsubmit="handleContactSubmit(event)" class="space-y-3 pt-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-bold text-xs mb-1">الاسم الكامل:</label>
+                                <input type="text" required id="contactName" placeholder="أدخل اسمك الكريم" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-xs mb-1">البريد الإلكتروني:</label>
+                                <input type="email" required id="contactEmail" placeholder="example@domain.com" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-xs mb-1">موضوع الرسالة:</label>
+                            <select id="contactSubject" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500">
+                                <option value="support">دعم فني / استفسار حول التطبيق</option>
+                                <option value="suggestion">اقتراح تحسين</option>
+                                <option value="privacy">استفسار بخصوص الخصوصية</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-xs mb-1">نص الرسالة:</label>
+                            <textarea required id="contactMessage" rows="4" placeholder="اكتب تفاصيل استفسارك هنا..." class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i> إرسال الرسالة الآن
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-3 bg-slate-100/50 dark:bg-slate-900/50 border-t border-slate-300 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+                <span>تاريخ التحديث: سبتمبر 2026</span>
+                <button onclick="closeLegalModal()" class="px-4 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-bold rounded-xl text-slate-800 dark:text-slate-200 transition-colors">
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Google Analytics & AdSense Settings Modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl relative border border-slate-300 dark:border-slate-700">
+            <div class="flex items-center justify-between border-b pb-3 border-slate-300 dark:border-slate-700">
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-500"></i>
+                    إعدادات Google Analytics
+                </h3>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-rose-500">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">معرف قياس Google Analytics (GA4 Tag ID):</label>
+                    <input type="text" id="gaInputId" placeholder="مثال: G-XXXXXXXXXX" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 outline-none focus:border-indigo-500 font-mono text-xs">
+                    <p class="text-[10px] text-slate-500 mt-1">يتم ربط الكود وتفعيله برمجياً بالكامل داخل الجافاسكربت فور إدخال المعرف.</p>
+                </div>
+
+                <div class="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 text-indigo-600 dark:text-indigo-300 text-[11px] leading-relaxed">
+                    <i data-lucide="info" class="w-4 h-4 inline-block ml-1"></i>
+                    سيقوم كود الجافاسكربت في التطبيق بحقن السكريبت وتأكيد الاتصال في الوقت الفعلي مع Google.
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-300 dark:border-slate-700">
+                <button onclick="closeSettingsModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-xs">إلغاء</button>
+                <button onclick="saveAnalyticsSettings()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs shadow-lg">حفظ وتفعيل التتبع</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Side Drawer -->
+    <div id="historyDrawer" class="fixed inset-y-0 left-0 w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-r border-slate-300 dark:border-slate-800 z-50 transform -translate-x-full transition-transform duration-300 p-4 flex flex-col shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-300 dark:border-slate-800 pb-3 mb-3">
+            <h3 class="font-bold text-sm flex items-center gap-2">
+                <i data-lucide="history" class="w-4 h-4 text-cyan-500"></i>
+                سجل المسوحات السابقة
+            </h3>
+            <button onclick="toggleHistoryDrawer()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div id="historyList" class="flex-1 overflow-y-auto space-y-2.5 custom-scrollbar text-xs">
+            <p class="text-slate-500 text-center py-8">لا يوجد مسوحات محفوظة بعد</p>
+        </div>
+        <button onclick="clearHistory()" class="mt-3 w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-xs font-bold rounded-xl border border-rose-500/20">
+            مسح السجل بالكامل
+        </button>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast" class="fixed bottom-5 left-5 z-50 transform translate-y-20 opacity-0 pointer-events-none toast-slide glass-panel text-slate-800 dark:text-slate-100 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 max-w-md border border-slate-300 dark:border-slate-700">
+        <div id="toastIconBg" class="p-2 rounded-xl bg-indigo-500/20 text-indigo-500">
+            <i id="toastIcon" data-lucide="info" class="w-5 h-5"></i>
+        </div>
+        <div>
+            <h4 id="toastTitle" class="font-bold text-xs">تنبيه</h4>
+            <p id="toastMsg" class="text-xs text-slate-500 dark:text-slate-400">إشعار التطبيق</p>
+        </div>
+    </div>
+
+    <script>
+        // Google Analytics Script Loader (Entirely inside JS code)
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+
+        function initAnalytics() {
+            const storedGAId = localStorage.getItem('app_ga_id');
+            if (!storedGAId) return;
+
+            let gaScript = document.getElementById('gaScript');
+            if (!gaScript) {
+                gaScript = document.createElement('script');
+                gaScript.id = 'gaScript';
+                gaScript.async = true;
+                gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${storedGAId}`;
+                document.head.appendChild(gaScript);
+            } else {
+                gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${storedGAId}`;
+            }
+
+            gtag('js', new Date());
+            gtag('config', storedGAId, {
+                send_page_view: true,
+                cookie_flags: 'max-age=7200;secure;samesite=none'
+            });
+        }
+
+        // Safe Lucide icon rendering wrapper
+        function safeCreateIcons() {
+            if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            safeCreateIcons();
+            initAnalytics();
+        });
+
+        // Theme System
+        let currentTheme = localStorage.getItem('app-theme') || 'dark';
+
+        function applyTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('app-theme', theme);
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeLabel = document.getElementById('themeLabel');
+
+            if (theme === 'light') {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                if (themeIcon) {
+                    themeIcon.setAttribute('data-lucide', 'moon');
+                    themeIcon.className = 'w-4 h-4 text-indigo-600';
+                }
+                if (themeLabel) themeLabel.innerText = 'الوضع المظلم';
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                if (themeIcon) {
+                    themeIcon.setAttribute('data-lucide', 'sun');
+                    themeIcon.className = 'w-4 h-4 text-amber-500';
+                }
+                if (themeLabel) themeLabel.innerText = 'الوضع المضيء';
+            }
+            safeCreateIcons();
+        }
+
+        function toggleTheme() {
+            applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        }
+        window.toggleTheme = toggleTheme;
+        applyTheme(currentTheme);
+
+        function openLegalModal(tab = 'about') {
+            document.getElementById('legalModal').classList.remove('hidden');
+            switchLegalTab(tab);
+        }
+
+        function closeLegalModal() {
+            document.getElementById('legalModal').classList.add('hidden');
+        }
+
+        function switchLegalTab(tabName) {
+            const tabs = ['about', 'privacy', 'terms', 'contact'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                const content = document.getElementById(`legalTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                
+                if (t === tabName) {
+                    btn.className = "px-4 py-2.5 rounded-t-xl transition-all border-b-2 border-cyan-500 text-cyan-600 dark:text-cyan-400 bg-slate-100 dark:bg-slate-900 font-black flex items-center gap-1.5 whitespace-nowrap shadow-xs";
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = "px-4 py-2.5 rounded-t-xl transition-all border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-cyan-500 flex items-center gap-1.5 whitespace-nowrap";
+                    content.classList.add('hidden');
+                }
+            });
+            safeCreateIcons();
+        }
+
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('contactName').value;
+            showToast(`شكراً لك يا ${name}! تم إرسال رسالتك بنجاح وسيتم الرد عليك في أقرب وقت.`, "success", "تم الإرسال");
+            document.getElementById('contactForm').reset();
+            setTimeout(() => {
+                closeLegalModal();
+            }, 1500);
+        }
+
+        function openSettingsModal() {
+            document.getElementById('gaInputId').value = localStorage.getItem('app_ga_id') || '';
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        function saveAnalyticsSettings() {
+            const gaId = document.getElementById('gaInputId').value.trim();
+
+            if (gaId) localStorage.setItem('app_ga_id', gaId);
+
+            initAnalytics();
+            closeSettingsModal();
+            showToast("تم حفظ وتحديث إعدادات Google Analytics بنجاح!", "success", "تم الربط");
+        }
+
+        // App Core State
+        let currentEngine = 'gemini';
+        let stream = null;
+        let loadedImage = null;
+        let rotationAngle = 0;
+        let extractedGridData = [];
+        let isSplitView = false;
+        let scanHistory = [];
+
+        // DOM Selectors
+        const btnStartCamera = document.getElementById('btnStartCamera');
+        const videoFeed = document.getElementById('videoFeed');
+        const cameraGuide = document.getElementById('cameraGuide');
+        const startPrompt = document.getElementById('startPrompt');
+        const previewCanvas = document.getElementById('previewCanvas');
+        const rawCaptureCanvas = document.getElementById('rawCaptureCanvas');
+        const fileInput = document.getElementById('fileInput');
+        
+        const btnCapture = document.getElementById('btnCapture');
+        const btnRetake = document.getElementById('btnRetake');
+        const btnProcess = document.getElementById('btnProcess');
+        const filterControls = document.getElementById('filterControls');
+        const imageEditToolbar = document.getElementById('imageEditToolbar');
+        const captureStatus = document.getElementById('captureStatus');
+        
+        const contrastSlider = document.getElementById('contrastSlider');
+        const brightnessSlider = document.getElementById('brightnessSlider');
+        const grayscaleToggle = document.getElementById('grayscaleToggle');
+        const btnResetFilters = document.getElementById('btnResetFilters');
+        const docPresetSelect = document.getElementById('docPresetSelect');
+        
+        const progressCard = document.getElementById('progressCard');
+        const statusText = document.getElementById('statusText');
+        const progressText = document.getElementById('progressText');
+        const progressBar = document.getElementById('progressBar');
+        
+        const emptyState = document.getElementById('emptyState');
+        const tableActions = document.getElementById('tableActions');
+        const tableAnalyticsBar = document.getElementById('tableAnalyticsBar');
+        const dataTable = document.getElementById('dataTable');
+        const dataTableHead = document.getElementById('dataTableHead');
+        const dataTableBody = document.getElementById('dataTableBody');
+        const rowCountText = document.getElementById('rowCountText');
+        const colCountText = document.getElementById('colCountText');
+
+        function showToast(message, type = 'info', title = 'إشعار') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastIconBg = document.getElementById('toastIconBg');
+
+            toastTitle.innerText = title;
+            toastMsg.innerText = message;
+            
+            if (type === 'error') {
+                toastIcon.setAttribute('data-lucide', 'alert-circle');
+                toastIconBg.className = 'p-2 rounded-xl bg-rose-500/20 text-rose-500 border border-rose-500/30';
+            } else if (type === 'success') {
+                toastIcon.setAttribute('data-lucide', 'check-circle-2');
+                toastIconBg.className = 'p-2 rounded-xl bg-emerald-500/20 text-emerald-500 border border-emerald-500/30';
+            } else {
+                toastIcon.setAttribute('data-lucide', 'info');
+                toastIconBg.className = 'p-2 rounded-xl bg-indigo-500/20 text-indigo-500 border border-indigo-500/30';
+            }
+            safeCreateIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 4000);
+        }
+
+        function setEngine(engine) {
+            currentEngine = engine;
+            const engineGemini = document.getElementById('engineGemini');
+            const engineTesseract = document.getElementById('engineTesseract');
+            const currentEngineLabel = document.getElementById('currentEngineLabel');
+            const engineDescription = document.getElementById('engineDescription');
+
+            if (engine === 'gemini') {
+                engineGemini.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md shadow-emerald-600/30";
+                engineTesseract.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all";
+                currentEngineLabel.innerText = "Gemini Vision AI + الضغط الذكي";
+                engineDescription.innerText = "يتم استخراج الجداول المعقدة والنصوص بآلية الضغط المسبق لتحقيق أعلى دقة وأسرع استجابة.";
+            } else {
+                engineTesseract.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md shadow-emerald-600/30";
+                engineGemini.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all";
+                currentEngineLabel.innerText = "المحرك المحلي (Tesseract OCR)";
+                engineDescription.innerText = "معالجة مباشرة على جهازك دون الحاجة لشبكة الإنترنت.";
+            }
+        }
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+                });
+                videoFeed.srcObject = stream;
+                
+                startPrompt.classList.add('hidden');
+                previewCanvas.classList.add('hidden');
+                filterControls.classList.add('hidden');
+                imageEditToolbar.classList.add('hidden');
+                
+                videoFeed.classList.remove('hidden');
+                cameraGuide.classList.remove('hidden');
+                
+                btnCapture.classList.remove('hidden');
+                btnRetake.classList.add('hidden');
+                btnProcess.classList.add('hidden');
+                
+                captureStatus.innerText = 'الكاميرا نشطة';
+                captureStatus.className = 'text-[11px] bg-emerald-500/20 text-emerald-500 px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/30';
+            } catch (err) {
+                console.error("Camera Access Error:", err);
+                showToast("تعذر الوصول للكاميرا. يرجى التأكد من إعطاء الصلاحية أو رفع صورة.", "error", "خطأ بالكاميرا");
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        }
+
+        btnStartCamera.addEventListener('click', startCamera);
+
+        btnCapture.addEventListener('click', () => {
+            if (!stream) return;
+
+            rawCaptureCanvas.width = videoFeed.videoWidth;
+            rawCaptureCanvas.height = videoFeed.videoHeight;
+            const ctx = rawCaptureCanvas.getContext('2d');
+            ctx.drawImage(videoFeed, 0, 0);
+
+            const img = new Image();
+            img.onload = () => {
+                loadedImage = img;
+                rotationAngle = 0;
+                applyFiltersAndPreview();
+            };
+            img.src = rawCaptureCanvas.toDataURL('image/png');
+
+            stopCamera();
+            videoFeed.classList.add('hidden');
+            cameraGuide.classList.add('hidden');
+            btnCapture.classList.add('hidden');
+
+            btnRetake.classList.remove('hidden');
+            btnProcess.classList.remove('hidden');
+            imageEditToolbar.classList.remove('hidden');
+            previewCanvas.classList.remove('hidden');
+            
+            captureStatus.innerText = 'تم الالتقاط';
+            captureStatus.className = 'text-[11px] bg-indigo-500/20 text-indigo-500 px-2.5 py-0.5 rounded-full font-bold border border-indigo-500/30';
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        loadedImage = img;
+                        rotationAngle = 0;
+                        
+                        rawCaptureCanvas.width = img.width;
+                        rawCaptureCanvas.height = img.height;
+                        const ctx = rawCaptureCanvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+
+                        applyFiltersAndPreview();
+
+                        startPrompt.classList.add('hidden');
+                        videoFeed.classList.add('hidden');
+                        cameraGuide.classList.add('hidden');
+                        
+                        previewCanvas.classList.remove('hidden');
+                        imageEditToolbar.classList.remove('hidden');
+                        btnRetake.classList.remove('hidden');
+                        btnProcess.classList.remove('hidden');
+
+                        stopCamera();
+                        captureStatus.innerText = 'تم تحضير الملف';
+                        captureStatus.className = 'text-[11px] bg-indigo-500/20 text-indigo-500 px-2.5 py-0.5 rounded-full font-bold border border-indigo-500/30';
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        btnRetake.addEventListener('click', () => {
+            loadedImage = null;
+            filterControls.classList.add('hidden');
+            imageEditToolbar.classList.add('hidden');
+            btnProcess.classList.add('hidden');
+            startCamera();
+        });
+
+        function rotateImage(deg) {
+            rotationAngle = (rotationAngle + deg) % 360;
+            applyFiltersAndPreview();
+        }
+
+        function toggleFiltersPanel() {
+            filterControls.classList.toggle('hidden');
+        }
+
+        function applyFiltersAndPreview() {
+            if (!loadedImage) return;
+
+            const isVertical = Math.abs(rotationAngle) === 90 || Math.abs(rotationAngle) === 270;
+            const targetWidth = isVertical ? loadedImage.height : loadedImage.width;
+            const targetHeight = isVertical ? loadedImage.width : loadedImage.height;
+
+            previewCanvas.width = targetWidth;
+            previewCanvas.height = targetHeight;
+
+            document.getElementById('imgDimensionsText').innerText = `${targetWidth}x${targetHeight} px`;
+
+            const ctx = previewCanvas.getContext('2d');
+            ctx.clearRect(0, 0, targetWidth, targetHeight);
+
+            ctx.save();
+            ctx.translate(targetWidth / 2, targetHeight / 2);
+            ctx.rotate((rotationAngle * Math.PI) / 180);
+
+            const contrast = contrastSlider.value / 100;
+            const brightness = brightnessSlider.value / 100;
+
+            ctx.filter = `contrast(${contrast}) brightness(${brightness})`;
+            ctx.drawImage(loadedImage, -loadedImage.width / 2, -loadedImage.height / 2);
+            ctx.restore();
+
+            if (grayscaleToggle.checked) {
+                const imgData = ctx.getImageData(0, 0, previewCanvas.width, previewCanvas.height);
+                const data = imgData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    const avg = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                    data[i]     = avg;
+                    data[i + 1] = avg;
+                    data[i + 2] = avg;
+                }
+                ctx.putImageData(imgData, 0, 0);
+            }
+        }
+
+        contrastSlider.addEventListener('input', applyFiltersAndPreview);
+        brightnessSlider.addEventListener('input', applyFiltersAndPreview);
+        grayscaleToggle.addEventListener('change', applyFiltersAndPreview);
+
+        btnResetFilters.addEventListener('click', () => {
+            contrastSlider.value = 125;
+            brightnessSlider.value = 105;
+            grayscaleToggle.checked = true;
+            rotationAngle = 0;
+            applyFiltersAndPreview();
+        });
+
+        function getCompressedBase64Image(maxDimension = 1400) {
+            const tempCanvas = document.createElement('canvas');
+            let w = previewCanvas.width;
+            let h = previewCanvas.height;
+
+            if (w > maxDimension || h > maxDimension) {
+                if (w > h) {
+                    h = Math.round((h * maxDimension) / w);
+                    w = maxDimension;
+                } else {
+                    w = Math.round((w * maxDimension) / h);
+                    h = maxDimension;
+                }
+            }
+
+            tempCanvas.width = w;
+            tempCanvas.height = h;
+            const ctx = tempCanvas.getContext('2d');
+            ctx.drawImage(previewCanvas, 0, 0, w, h);
+
+            return tempCanvas.toDataURL('image/jpeg', 0.88).split(',')[1];
+        }
+
+        btnProcess.addEventListener('click', async () => {
+            if (!previewCanvas) return;
+
+            btnProcess.disabled = true;
+            btnProcess.classList.add('opacity-50', 'cursor-not-allowed');
+            progressCard.classList.remove('hidden');
+
+            try {
+                if (currentEngine === 'gemini') {
+                    await processTableWithGeminiAI();
+                } else {
+                    await processTableWithTesseract();
+                }
+
+                document.getElementById('btnToggleSplitView').classList.remove('hidden');
+                saveCurrentToHistory();
+                showToast("تم تحويل المستند بنجاح بدقة وسرعة فائقة!", "success", "نجاح المعالجة");
+
+                // Send event to GA dynamically
+                if (typeof gtag === 'function') {
+                    gtag('event', 'document_scanned', { engine: currentEngine });
+                }
+
+            } catch (err) {
+                console.error("Processing Error:", err);
+                showToast("حدث خطأ أثناء تحليل المستند. يرجى المحاولة مجدداً مع تباين أعلى.", "error", "فشل التحليل");
+            } finally {
+                btnProcess.disabled = false;
+                btnProcess.classList.remove('opacity-50', 'cursor-not-allowed');
+                progressCard.classList.add('hidden');
+            }
+        });
+
+        async function processTableWithGeminiAI() {
+            statusText.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 animate-spin text-cyan-500"></i> جاري معالجة المستند وتنسيق الجداول عبر Gemini Vision...`;
+            safeCreateIcons();
+            
+            progressBar.style.width = '25%';
+            progressText.innerText = '25%';
+
+            const compressedBase64 = getCompressedBase64Image(1500);
+
+            const preset = docPresetSelect.value;
+            let presetInstruction = "";
+            if (preset === "receipt") {
+                presetInstruction = "هذا المستند عبارة عن فاتورة شراء/إيصال مالي. ركز على استخراج أعمدة: اسم الصنف/الخدمة، الكمية، السعر الفردي، والإجمالي، مع إضافة حقول الضريبة والإجمالي النهائي إن وجدت.";
+            } else if (preset === "attendance") {
+                presetInstruction = "هذا المستند عبارة عن كشف حضور أو بيانات موظفين. استخرج أسماء الأشخاص، الأرقام التعريفية، حالات الحضور/الغياب، الملاحظات.";
+            } else if (preset === "financial") {
+                presetInstruction = "هذا المستند تقرير مالي/ميزانية. استخرج الأوصاف المالية، الفترات، المبالغ، والعملات إن وجدت بشكل دقيق جداً.";
+            } else {
+                presetInstruction = "استخرج جدول البيانات بالكامل مع المحافظة على التسلسل الدقيق للصفوف والأعمدة.";
+            }
+
+            const apiKey = ""; // API Key injected automatically in environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const systemPrompt = `أنت خبير محترف في تحليل الجداول والمستندات الورقية والمالية.
+مهمتك قراءة الجدول في الصورة وتنسيقه كـ JSON نقي فقط وفق النمط المحدد بدون أي شرح أو كلام إضافي:
+{
+  "headers": ["اسم العمود 1", "اسم العمود 2", ...],
+  "rows": [
+    ["قيمة 1", "قيمة 2", ...],
+    ["قيمة 3", "قيمة 4", ...]
+  ]
+}
+تعليمات هامة:
+1. حافظ على توجيه النصوص وتطابق الحقول.
+2. ${presetInstruction}
+3. لا تضع رموز markdown مثل \`\`\`json في البداية والنهاية، أرجع كائن JSON فقط.`;
+
+            const payload = {
+                contents: [
+                    {
+                        role: "user",
+                        parts: [
+                            { text: "قم بتحليل وتقسيم هذا الجدول بدقة متناهية إلى شبكة JSON متناسقة." },
+                            {
+                                inlineData: {
+                                    mimeType: "image/jpeg",
+                                    data: compressedBase64
+                                }
+                            }
+                        ]
+                    }
+                ],
+                generationConfig: {
+                    responseMimeType: "application/json"
+                },
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                }
+            };
+
+            progressBar.style.width = '65%';
+            progressText.innerText = '65%';
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error(`Gemini API Error: ${response.status}`);
+
+            const result = await response.json();
+            progressBar.style.width = '90%';
+            progressText.innerText = '90%';
+
+            const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!jsonText) throw new Error("استجابة غير صالحة من AI");
+
+            const parsed = JSON.parse(jsonText);
+            
+            extractedGridData = [];
+            if (parsed.headers && parsed.headers.length > 0) {
+                extractedGridData.push(parsed.headers);
+            }
+            if (parsed.rows && parsed.rows.length > 0) {
+                parsed.rows.forEach(r => extractedGridData.push(r));
+            }
+
+            progressBar.style.width = '100%';
+            progressText.innerText = '100%';
+            renderTableUI();
+        }
+
+        async function processTableWithTesseract() {
+            const canvasData = previewCanvas.toDataURL('image/png');
+
+            const worker = await Tesseract.createWorker('ara+eng', 1, {
+                logger: m => {
+                    if (m.status === 'recognizing text') {
+                        const pct = Math.round(m.progress * 100);
+                        progressBar.style.width = pct + '%';
+                        progressText.innerText = pct + '%';
+                        statusText.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-cyan-500"></i> جاري التعرف المحلي (Tesseract)...`;
+                        safeCreateIcons();
+                    }
+                }
+            });
+
+            const ret = await worker.recognize(canvasData);
+            await worker.terminate();
+
+            parseSpatialLayoutToGrid(ret.data);
+        }
+
+        function parseSpatialLayoutToGrid(ocrData) {
+            const words = ocrData.words || [];
+
+            if (words.length === 0) {
+                showToast("لم يتم التعرف على أي نصوص واضحة.", "error", "تنبيه");
+                return;
+            }
+
+            const lines = [];
+            const yTolerance = 18;
+
+            words.forEach(word => {
+                if (!word.text || !word.text.trim()) return;
+                const centerY = (word.bbox.y0 + word.bbox.y1) / 2;
+                let line = lines.find(l => Math.abs(l.centerY - centerY) < yTolerance);
+
+                if (!line) {
+                    line = { centerY, words: [] };
+                    lines.push(line);
+                }
+                line.words.push(word);
+            });
+
+            lines.sort((a, b) => a.centerY - b.centerY);
+            lines.forEach(l => l.words.sort((a, b) => a.bbox.x0 - b.bbox.x0));
+
+            const xRanges = [];
+            const xGapThreshold = 30;
+
+            lines.forEach(l => {
+                l.words.forEach(w => {
+                    let range = xRanges.find(r => !(w.bbox.x1 < r.x0 - xGapThreshold || w.bbox.x0 > r.x1 + xGapThreshold));
+                    if (range) {
+                        range.x0 = Math.min(range.x0, w.bbox.x0);
+                        range.x1 = Math.max(range.x1, w.bbox.x1);
+                    } else {
+                        xRanges.push({ x0: w.bbox.x0, x1: w.bbox.x1 });
+                    }
+                });
+            });
+
+            xRanges.sort((a, b) => a.x0 - b.x0);
+
+            extractedGridData = lines.map(line => {
+                const row = new Array(xRanges.length).fill('');
+                line.words.forEach(w => {
+                    const wordCenterX = (w.bbox.x0 + w.bbox.x1) / 2;
+                    let colIdx = xRanges.findIndex(r => wordCenterX >= r.x0 - 15 && wordCenterX <= r.x1 + 15);
+                    if (colIdx === -1) colIdx = 0;
+                    row[colIdx] = (row[colIdx] + ' ' + w.text).trim();
+                });
+                return row;
+            });
+
+            renderTableUI();
+        }
+
+        function renderTableUI() {
+            if (extractedGridData.length === 0) return resetTable();
+
+            emptyState.classList.add('hidden');
+            dataTable.classList.remove('hidden');
+            tableActions.classList.remove('hidden');
+            tableAnalyticsBar.classList.remove('hidden');
+
+            dataTableHead.innerHTML = '';
+            dataTableBody.innerHTML = '';
+
+            const numCols = extractedGridData[0].length;
+
+            // Header Row
+            const trHead = document.createElement('tr');
+            
+            const thIndex = document.createElement('th');
+            thIndex.className = 'p-3 border-b border-l w-10 text-center font-mono text-xs';
+            thIndex.innerText = '#';
+            trHead.appendChild(thIndex);
+
+            for (let c = 0; c < numCols; c++) {
+                const th = document.createElement('th');
+                th.className = 'p-2.5 border-b border-l font-bold min-w-[120px] relative group';
+                th.innerHTML = `
+                    <div class="flex items-center justify-between px-1">
+                        <span class="text-cyan-500 font-extrabold">عمود ${c + 1}</span>
+                        <button onclick="deleteColumn(${c})" class="text-rose-500 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity p-0.5" title="حذف العمود">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                `;
+                trHead.appendChild(th);
+            }
+            dataTableHead.appendChild(trHead);
+
+            // Data Rows
+            extractedGridData.forEach((row, rIdx) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-indigo-500/10 transition-colors group data-row';
+
+                const tdIndex = document.createElement('td');
+                tdIndex.className = 'p-2 border-b border-l text-center text-xs font-mono font-medium';
+                tdIndex.innerHTML = `
+                    <span class="group-hover:hidden">${rIdx + 1}</span>
+                    <button onclick="deleteRow(${rIdx})" class="hidden group-hover:inline-flex text-rose-500 hover:text-rose-600" title="حذف الصف">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                `;
+                tr.appendChild(tdIndex);
+
+                row.forEach((cellVal, cIdx) => {
+                    const td = document.createElement('td');
+                    td.className = 'p-0 border-b border-l';
+
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = cellVal;
+                    input.className = 'editable-cell-input w-full h-full py-2 px-2.5 outline-none focus:bg-indigo-500/10 focus:ring-1 focus:ring-cyan-500 text-xs font-medium transition-all';
+                    input.oninput = (e) => {
+                        extractedGridData[rIdx][cIdx] = e.target.value;
+                        calculateTableStats();
+                    };
+
+                    td.appendChild(input);
+                    tr.appendChild(td);
+                });
+
+                dataTableBody.appendChild(tr);
+            });
+
+            rowCountText.innerText = `عدد الصفوف: ${extractedGridData.length}`;
+            colCountText.innerText = `عدد الأعمدة: ${numCols}`;
+            calculateTableStats();
+            safeCreateIcons();
+        }
+
+        function cleanAndNormalizeNumbers() {
+            if (extractedGridData.length === 0) return;
+
+            const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+            
+            for (let r = 0; r < extractedGridData.length; r++) {
+                for (let c = 0; c < extractedGridData[r].length; c++) {
+                    let str = extractedGridData[r][c];
+                    if (str) {
+                        for (let i = 0; i < 10; i++) {
+                            str = str.replace(new RegExp(arabicDigits[i], 'g'), i);
+                        }
+                        extractedGridData[r][c] = str.trim();
+                    }
+                }
+            }
+            renderTableUI();
+            showToast("تم تحويل جميع الأرقام إلى أرقام إنجليزية قياسية!", "success", "توحيد الأرقام");
+        }
+
+        function cleanEmptyRowsCols() {
+            if (extractedGridData.length === 0) return;
+
+            extractedGridData = extractedGridData.filter(row => row.some(cell => cell && cell.toString().trim() !== ''));
+
+            if (extractedGridData.length > 0) {
+                const colCount = extractedGridData[0].length;
+                const emptyCols = [];
+
+                for (let c = 0; c < colCount; c++) {
+                    const isEmpty = extractedGridData.every(row => !row[c] || row[c].toString().trim() === '');
+                    if (isEmpty) emptyCols.push(c);
+                }
+
+                for (let i = emptyCols.length - 1; i >= 0; i--) {
+                    const colIdx = emptyCols[i];
+                    extractedGridData.forEach(row => row.splice(colIdx, 1));
+                }
+            }
+
+            renderTableUI();
+            showToast("تم تنظيف الجدول وحذف الحقول الفارغة بنجاح!", "success", "تنظيف تلقائي");
+        }
+
+        function calculateTableStats() {
+            let totalSum = 0;
+            let numericCount = 0;
+            let totalCells = 0;
+
+            extractedGridData.forEach(row => {
+                row.forEach(val => {
+                    totalCells++;
+                    const cleaned = (val || '').toString().replace(/,/g, '');
+                    const num = parseFloat(cleaned);
+                    if (!isNaN(num)) {
+                        totalSum += num;
+                        numericCount++;
+                    }
+                });
+            });
+
+            document.getElementById('statSum').innerText = `المجموع: ${totalSum.toLocaleString('ar-EG')}`;
+            document.getElementById('statAvg').innerText = `المتوسط: ${(numericCount ? (totalSum / numericCount) : 0).toFixed(2)}`;
+            document.getElementById('statCount').innerText = `الخلايا: ${totalCells}`;
+        }
+
+        function filterTableRows() {
+            const query = document.getElementById('tableSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.data-row');
+
+            rows.forEach((row, idx) => {
+                const text = (extractedGridData[idx] || []).join(' ').toLowerCase();
+                if (text.includes(query)) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
+        function resetTable() {
+            extractedGridData = [];
+            dataTable.classList.add('hidden');
+            tableActions.classList.add('hidden');
+            tableAnalyticsBar.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            rowCountText.innerText = 'عدد الصفوف: 0';
+            colCountText.innerText = 'عدد الأعمدة: 0';
+        }
+
+        document.getElementById('btnAddRow').addEventListener('click', () => {
+            if (extractedGridData.length === 0) {
+                extractedGridData = [['', '']];
+            } else {
+                extractedGridData.push(new Array(extractedGridData[0].length).fill(''));
+            }
+            renderTableUI();
+        });
+
+        document.getElementById('btnAddCol').addEventListener('click', () => {
+            if (extractedGridData.length === 0) {
+                extractedGridData = [['']];
+            } else {
+                extractedGridData.forEach(row => row.push(''));
+            }
+            renderTableUI();
+        });
+
+        window.deleteRow = (rIdx) => {
+            extractedGridData.splice(rIdx, 1);
+            if (extractedGridData.length === 0) resetTable();
+            else renderTableUI();
+        };
+
+        window.deleteColumn = (cIdx) => {
+            if (extractedGridData[0].length <= 1) {
+                showToast("لا يمكن حذف العمود الوحيد المتبقي.", "error", "تنبيه");
+                return;
+            }
+            extractedGridData.forEach(row => row.splice(cIdx, 1));
+            renderTableUI();
+        };
+
+        function toggleSplitView() {
+            isSplitView = !isSplitView;
+            const leftColumn = document.getElementById('leftColumn');
+            const rightColumn = document.getElementById('rightColumn');
+            const btnText = document.getElementById('splitViewBtnText');
+
+            if (isSplitView) {
+                leftColumn.className = "lg:col-span-6 flex flex-col gap-4 transition-all duration-300";
+                rightColumn.className = "lg:col-span-6 flex flex-col transition-all duration-300";
+                btnText.innerText = "إنهاء المقارنة";
+            } else {
+                leftColumn.className = "lg:col-span-5 flex flex-col gap-4 transition-all duration-300";
+                rightColumn.className = "lg:col-span-7 flex flex-col transition-all duration-300";
+                btnText.innerText = "المقارنة الجانبية";
+            }
+        }
+
+        function saveCurrentToHistory() {
+            if (extractedGridData.length === 0) return;
+            const item = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+                data: JSON.parse(JSON.stringify(extractedGridData)),
+                rows: extractedGridData.length,
+                cols: extractedGridData[0].length
+            };
+            scanHistory.unshift(item);
+            updateHistoryUI();
+        }
+
+        function updateHistoryUI() {
+            const historyList = document.getElementById('historyList');
+            document.getElementById('historyCount').innerText = scanHistory.length;
+
+            if (scanHistory.length === 0) {
+                historyList.innerHTML = `<p class="text-slate-500 text-center py-8">لا يوجد مسوحات محفوظة بعد</p>`;
+                return;
+            }
+
+            historyList.innerHTML = scanHistory.map(item => `
+                <div onclick="loadFromHistory(${item.id})" class="p-3 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700/50 cursor-pointer transition-all flex items-center justify-between group">
+                    <div>
+                        <span class="font-bold text-slate-800 dark:text-slate-200 block text-xs">مسح جدول (${item.rows}×${item.cols})</span>
+                        <span class="text-[10px] text-slate-500 font-mono">${item.timestamp}</span>
+                    </div>
+                    <i data-lucide="chevron-left" class="w-4 h-4 text-cyan-500 group-hover:-translate-x-1 transition-transform"></i>
+                </div>
+            `).join('');
+            safeCreateIcons();
+        }
+
+        function loadFromHistory(id) {
+            const found = scanHistory.find(h => h.id === id);
+            if (found) {
+                extractedGridData = JSON.parse(JSON.stringify(found.data));
+                renderTableUI();
+                toggleHistoryDrawer();
+                showToast("تم تحميل الجدول المحدد من السجل بنجاح!", "info", "استرجاع من السجل");
+            }
+        }
+
+        function clearHistory() {
+            scanHistory = [];
+            updateHistoryUI();
+            showToast("تم تفريغ سجل المسوحات.", "info", "تم المسح");
+        }
+
+        function toggleHistoryDrawer() {
+            const drawer = document.getElementById('historyDrawer');
+            drawer.classList.toggle('-translate-x-full');
+        }
+
+        function copyTableToClipboard() {
+            if (extractedGridData.length === 0) return;
+
+            const tsvContent = extractedGridData.map(row => row.join('\t')).join('\n');
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = tsvContent;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast("تم نسخ بيانات الجدول! يمكنك لصقها فوراً في برنامج Excel أو Google Sheets.", "success", "تم النسخ");
+            } catch (err) {
+                showToast("تعذر النسخ التلقائي.", "error", "خطأ");
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+
+        document.getElementById('btnExportExcel').addEventListener('click', () => {
+            if (extractedGridData.length === 0) return;
+
+            const ws = XLSX.utils.aoa_to_sheet(extractedGridData);
+            if (!ws['!dir']) ws['!dir'] = 'rtl';
+
+            const colWidths = extractedGridData[0].map((_, cIdx) => {
+                const maxLen = extractedGridData.reduce((acc, row) => Math.max(acc, (row[cIdx] || '').toString().length), 10);
+                return { wch: Math.min(maxLen + 8, 50) };
+            });
+            ws['!cols'] = colWidths;
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "البيانات المستخرجة");
+
+            const fileName = `جدول_مستند_${new Date().toISOString().slice(0,10)}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+
+            showToast("تم تصدير ملف الإكسل المنظم بنجاح!", "success", "تم التصدير");
+
+            // Event to GA
+            if (typeof gtag === 'function') {
+                gtag('event', 'excel_exported', { rows: extractedGridData.length });
+            }
+        });
+
+    </script>
+</body>
+</html>
