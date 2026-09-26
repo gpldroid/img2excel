@@ -1,0 +1,1 @@
+(function(){'use strict';window.Img2ExcelParser={normalizeDigits(v){return String(v??'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim()},removeEmptyRows(rows){return(rows||[]).filter(r=>(r||[]).some(c=>String(c??'').trim()!==''))},toTSV(rows){return(rows||[]).map(r=>(r||[]).map(v=>String(v??'').replace(/\t/g,' ')).join('\t')).join('\n')}}})();
