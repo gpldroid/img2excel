@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استوديو المشاريع التفاعلية - Project Studio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- JSZip library for creating downloadable zip archives -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Google Font Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .code-input { font-family: 'Fira Code', monospace; tab-size: 4; }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen flex flex-col overflow-hidden">
+
+    <header class="bg-slate-900 border-b border-slate-800 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                <i class="fa-solid fa-laptop-code text-white text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight text-white flex items-center gap-2">
+                    منصة إنشاء وتحميل المشاريع
+                    <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">v2.5 Pro</span>
+                </h1>
+                <p class="text-xs text-slate-400">محرر متكامل، معاينة فورية، وتحميل مباشر للملفات</p>
+            </div>
+        </div>
+
+        <!-- Template Selector & Action Controls -->
+        <div class="flex items-center gap-2 flex-wrap">
+            <div class="relative">
+                <select id="templateSelector" onchange="loadSelectedTemplate()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none focus:border-cyan-500 transition">
+                    <option value="landing">🚀 متكامل: صفحة هبوط حديثة (Landing Page)</option>
+                    <option value="ecommerce">🛒 متكامل: متجر إلكتروني مع سلة (E-Commerce)</option>
+                    <option value="dashboard">📊 متكامل: لوحة تحكم تفاعلية (Dashboard)</option>
+                    <option value="portfolio">💼 متكامل: معرض أعمال شخصي (Portfolio)</option>
+                    <option value="game">🎮 متكامل: لعبة ذاكرة تفاعلية (Memory Game)</option>
+                </select>
+            </div>
+
+            <button onclick="runPreview()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition shadow-lg shadow-emerald-900/30">
+                <i class="fa-solid fa-play"></i> تشغيل المعاينة
+            </button>
+
+            <button onclick="generateStandaloneLink()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition shadow-lg shadow-purple-900/30">
+                <i class="fa-solid fa-up-right-from-square"></i> فتح برابط مستقل
+            </button>
+
+            <!-- Download Button Menu -->
+            <button onclick="downloadProjectZip()" class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5 transition shadow-lg shadow-cyan-900/40">
+                <i class="fa-solid fa-file-arrow-down text-sm"></i> تحميل المشروع كامل (ZIP)
+            </button>
+
+            <button onclick="downloadActiveFile()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-download"></i> تحميل الملف الحالي
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- Sidebar: File Explorer -->
+        <aside class="w-64 bg-slate-900 border-l border-slate-800 flex flex-col shrink-0">
+            <div class="p-3 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-regular fa-folder-open text-cyan-400"></i> ملفات المشروع
+                </span>
+                <button onclick="createNewFilePrompt()" class="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-cyan-400 transition" title="إضافة ملف جديد">
+                    <i class="fa-solid fa-plus text-sm"></i>
+                </button>
+            </div>
+
+            <!-- File List -->
+            <div id="fileList" class="flex-1 overflow-y-auto p-2 space-y-1">
+                <!-- File items dynamically inserted here -->
+            </div>
+
+            <!-- Project Stats & Export Info -->
+            <div class="p-3 border-t border-slate-800 bg-slate-950/50 text-xs text-slate-400 space-y-2">
+                <div class="flex justify-between">
+                    <span>حجم المشروع:</span>
+                    <span id="projectSize" class="text-slate-200 font-mono">0 KB</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>عدد الملفات:</span>
+                    <span id="fileCount" class="text-slate-200 font-mono">0</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col bg-slate-950 min-w-0 border-l border-slate-800">
+            <!-- Active File Tabs Header -->
+            <div class="bg-slate-900 border-b border-slate-800 flex items-center justify-between px-2 overflow-x-auto">
+                <div id="tabsContainer" class="flex items-center gap-1 py-1">
+                    <!-- Tabs rendered dynamically -->
+                </div>
+                <div class="flex items-center gap-2 text-xs text-slate-400 px-2">
+                    <span id="activeFileType" class="uppercase text-[10px] bg-slate-800 px-2 py-0.5 rounded text-cyan-400 font-mono">HTML</span>
+                </div>
+            </div>
+
+            <!-- Code Editor Area -->
+            <div class="flex-1 relative flex overflow-hidden">
+                <!-- Line numbers bar -->
+                <div id="lineNumbers" class="w-12 bg-slate-900/50 border-r border-slate-800 py-3 text-right pr-3 pl-1 font-mono text-xs text-slate-600 select-none overflow-hidden">
+                    1
+                </div>
+                <!-- Textarea Code Input -->
+                <textarea id="codeEditor" spellcheck="false" oninput="handleCodeInput()" onkeydown="handleTabKey(event)" class="code-input flex-1 bg-transparent p-3 text-slate-200 text-sm leading-relaxed outline-none resize-none overflow-auto border-none font-mono" placeholder="اكتب الكود هنا..."></textarea>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="bg-slate-900 border-t border-slate-800 px-4 py-1.5 flex justify-between items-center text-xs text-slate-400">
+                <div class="flex items-center gap-3">
+                    <span id="cursorPos"><i class="fa-solid fa-code text-cyan-500/70"></i> جاهز للتعديل</span>
+                    <span class="text-slate-700">|</span>
+                    <span class="text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-circle text-[8px]"></i> التغييرات محفوظة تلقائياً</span>
+                </div>
+                <div>UTF-8</div>
+            </div>
+        </main>
+
+        <section class="w-1/2 flex flex-col bg-slate-900 shrink-0 border-r border-slate-800">
+            <!-- Preview Controls Bar -->
+            <div class="bg-slate-900 border-b border-slate-800 p-2 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-desktop text-emerald-400"></i> الشاشة الحية للمعاينة
+                    </span>
+                </div>
+                
+                <!-- Viewport Mode Buttons -->
+                <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 gap-1">
+                    <button onclick="setViewport('100%')" class="px-2 py-1 text-xs rounded hover:bg-slate-800 text-slate-300 transition" title="حاسوب">
+                        <i class="fa-solid fa-laptop"></i>
+                    </button>
+                    <button onclick="setViewport('768px')" class="px-2 py-1 text-xs rounded hover:bg-slate-800 text-slate-300 transition" title="تابلت">
+                        <i class="fa-solid fa-tablet-screen-button"></i>
+                    </button>
+                    <button onclick="setViewport('375px')" class="px-2 py-1 text-xs rounded hover:bg-slate-800 text-slate-300 transition" title="جوال">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview Iframe Canvas -->
+            <div class="flex-1 bg-slate-950 p-2 flex justify-center items-center overflow-hidden">
+                <div id="previewWrapper" class="w-full h-full bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-300">
+                    <iframe id="previewFrame" class="w-full h-full border-0 bg-white"></iframe>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Project files state dictionary
+        let projectFiles = {};
+        let activeFileName = "index.html";
+
+        // Preloaded Starter Templates with full directory structure
+        const templates = {
+            landing: {
+                "index.html": `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة هبوط احترافية</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-900 text-slate-100 font-cairo">
+    <nav class="container mx-auto px-6 py-4 flex justify-between items-center border-b border-slate-800">
+        <div class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+            مشروعي الذكي
+        </div>
+        <div class="space-x-6 space-x-reverse text-sm">
+            <a href="#features" class="hover:text-blue-400 transition">المميزات</a>
+            <a href="#about" class="hover:text-blue-400 transition">عن المنصة</a>
+            <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition font-semibold">ابدأ الآن</button>
+        </div>
+    </nav>
+
+    <section class="container mx-auto px-6 py-20 text-center">
+        <h1 class="text-5xl font-extrabold mb-6 leading-tight">
+            المستقبل يبدأ من <span class="text-blue-500">سطر كود واحد</span>
+        </h1>
+        <p class="text-slate-400 text-lg max-w-2xl mx-auto mb-8">
+            منصة متكاملة لبناء وتطوير التطبيقات بذكاء وسرعة عالية. حمل مشروعك وافرغ طاقتك الإبداعية.
+        </p>
+        <div class="flex justify-center gap-4">
+            <button onclick="showAlert()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-1">
+                استكشف المزايا
+            </button>
+            <a href="README.md" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-8 py-3 rounded-xl font-bold transition">
+                اقرأ التوثيق
+            </a>
+        </div>
+    </section>
+
+    <script src="script.js"><\/script>
+</body>
+</html>`,
+                "style.css": `/* أنماط مخصصة للمشروع */
+body {
+    font-family: 'Cairo', sans-serif;
+    scroll-behavior: smooth;
+}
+
+section {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}`,
+                "script.js": `// تفاعلات الصفحة
+function showAlert() {
+    alert("مرحباً بك! تم تشغيل المشروع بنجاح من الاستوديو.");
+}
+
+console.log("تم تحميل مشروع صفحة الهبوط بنجاح.");`,
+                "README.md": `# مشروع صفحة الهبوط
+هذا مشروع متكامل يحتوي على:
+- \`index.html\`: الهيكل الرئيسي
+- \`style.css\`: التنسيقات المخصصة
+- \`script.js\`: التفاعلات والبرمجيات`
+            },
+            ecommerce: {
+                "index.html": `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر التقنية العصرية</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-['Cairo'] p-6">
+    <div class="max-w-5xl mx-auto">
+        <header class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+            <h1 class="text-2xl font-bold text-cyan-400">🛍️ متجر الأجهزة الذكية</h1>
+            <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-800">
+                🛒 السلة: <span id="cartCount" class="font-bold text-emerald-400">0</span> منتجات
+            </div>
+        </header>
+
+        <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+    </div>
+
+    <script src="data.js"><\/script>
+    <script src="app.js"><\/script>
+</body>
+</html>`,
+                "style.css": `/* تنسيقات المتجر */
+.product-card {
+    transition: all 0.3s ease;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+}`,
+                "data.js": `const products = [
+    { id: 1, name: "سماعات لاسلكية Pro", price: "299 ر.س", icon: "🎧" },
+    { id: 2, name: "ساعة ذكية رياضية", price: "450 ر.س", icon: "⌚" },
+    { id: 3, name: "لوحة مفاتيح ميكانيكية", price: "180 ر.س", icon: "⌨️" }
+];`,
+                "app.js": `let cart = 0;
+
+function renderProducts() {
+    const grid = document.getElementById('productsGrid');
+    grid.innerHTML = products.map(p => \`
+        <div class="product-card bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between">
+            <div>
+                <div class="text-5xl mb-4 text-center">\${p.icon}</div>
+                <h3 class="font-bold text-lg text-white text-center mb-2">\${p.name}</h3>
+                <p class="text-cyan-400 text-center font-semibold mb-4">\${p.price}</p>
+            </div>
+            <button onclick="addToCart()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-xl transition">
+                إضافة للسلة
+            </button>
+        </div>
+    \`).join('');
+}
+
+function addToCart() {
+    cart++;
+    document.getElementById('cartCount').textContent = cart;
+}
+
+window.onload = renderProducts;`
+            },
+            dashboard: {
+                "index.html": `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة التحكم الذكية</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-950 text-slate-100 font-['Cairo'] p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-cyan-400">📊 لوحة الإحصائيات المباشرة</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                <div class="text-slate-400 text-sm">المستخدمين النشطين</div>
+                <div class="text-3xl font-bold text-white my-2">12,450</div>
+                <span class="text-emerald-400 text-xs">↑ 18% هذا الأسبوع</span>
+            </div>
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                <div class="text-slate-400 text-sm">إجمالي المبيعات</div>
+                <div class="text-3xl font-bold text-white my-2">$48,200</div>
+                <span class="text-emerald-400 text-xs">↑ 24% مقارنة بالشهر الماضي</span>
+            </div>
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                <div class="text-slate-400 text-sm">معدل التحويل</div>
+                <div class="text-3xl font-bold text-white my-2">4.8%</div>
+                <span class="text-cyan-400 text-xs">مستقر وممتاز</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`
+            },
+            portfolio: {
+                "index.html": `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>معرض الأعمال الشخصي</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-900 text-slate-100 font-['Cairo'] p-8">
+    <div class="max-w-4xl mx-auto text-center py-12">
+        <div class="w-28 h-28 mx-auto rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-4xl mb-4 shadow-xl">
+            👨‍💻
+        </div>
+        <h1 class="text-4xl font-extrabold mb-2">مطور تطبيقات ومواقع متكاملة</h1>
+        <p class="text-slate-400 max-w-lg mx-auto mb-6">أنشئ حلولاً برمجية فريدة، واجهات حديثة، وتجارب مستخدم استثنائية.</p>
+        <div class="flex justify-center gap-3">
+            <span class="bg-slate-800 text-cyan-400 px-3 py-1 rounded-full text-xs font-semibold">JavaScript</span>
+            <span class="bg-slate-800 text-cyan-400 px-3 py-1 rounded-full text-xs font-semibold">Tailwind CSS</span>
+            <span class="bg-slate-800 text-cyan-400 px-3 py-1 rounded-full text-xs font-semibold">React</span>
+        </div>
+    </div>
+</body>
+</html>`
+            },
+            game: {
+                "index.html": `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لعبة النقر التفاعلية</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-950 text-white font-['Cairo'] h-screen flex flex-col items-center justify-center">
+    <div class="text-center p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl max-w-md w-full">
+        <h1 class="text-3xl font-black mb-2 text-amber-400">🎮 تحدي السرعة</h1>
+        <p class="text-slate-400 text-sm mb-6">انقر على الزر أكبر عدد ممكن من المرات!</p>
+        <div id="score" class="text-6xl font-black text-cyan-400 mb-6">0</div>
+        <button onclick="incrementScore()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black py-4 rounded-xl text-xl shadow-lg transition transform active:scale-95">
+            اضغط هنا! 🚀
+        </button>
+    </div>
+    <script>
+        let count = 0;
+        function incrementScore() {
+            count++;
+            document.getElementById('score').innerText = count;
+        }
+    <\/script>
+</body>
+</html>`
+            }
+        };
+
+        window.onload = function() {
+        function getBundledHTML() {
+            saveCurrentCode();
+            let htmlContent = projectFiles["index.html"] || "<h3>لا يوجد ملف index.html</h3>";
+
+            // Inject CSS files into head
+            Object.keys(projectFiles).forEach(file => {
+                if (file.endsWith('.css') && file !== 'style.css') {
+                    htmlContent = htmlContent.replace('</head>', `<style>/* ${file} */\n${projectFiles[file]}</style></head>`);
+                }
+            });
+
+            if (projectFiles["style.css"]) {
+                htmlContent = htmlContent.replace('</head>', `<style>/* style.css */\n${projectFiles["style.css"]}</style></head>`);
+            }
+
+            // Inject JS files before end of body
+            Object.keys(projectFiles).forEach(file => {
+                if (file.endsWith('.js') && file !== 'script.js' && file !== 'app.js') {
+                    htmlContent = htmlContent.replace('</body>', `<script>/* ${file} */\n${projectFiles[file]}<\/script></body>`);
+                }
+            });
+
+            if (projectFiles["data.js"]) {
+                htmlContent = htmlContent.replace('</body>', `<script>/* data.js */\n${projectFiles["data.js"]}<\/script></body>`);
+            }
+            if (projectFiles["app.js"]) {
+                htmlContent = htmlContent.replace('</body>', `<script>/* app.js */\n${projectFiles["app.js"]}<\/script></body>`);
+            }
+            if (projectFiles["script.js"]) {
+                htmlContent = htmlContent.replace('</body>', `<script>/* script.js */\n${projectFiles["script.js"]}<\/script></body>`);
+            }
+
+            return htmlContent;
+        }
+
+        function runPreview() {
+            const htmlContent = getBundledHTML();
+            const iframe = document.getElementById('previewFrame');
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            iframe.src = URL.createObjectURL(blob);
+        }
+
+        function generateStandaloneLink() {
+            const htmlContent = getBundledHTML();
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const previewUrl = URL.createObjectURL(blob);
+            
+            // Open full output in new tab
+            const win = window.open(previewUrl, '_blank');
+            if (!win) {
+                alert("يرجى السماح بالنوافذ المنبثقة لفتح المعاينة المستقلة.");
+            }
+        }
+
+        function downloadProjectZip() {
+            saveCurrentCode();
+
+            if (typeof JSZip === 'undefined') {
+                alert("جاري تحميل مكتبة الضغط، يرجى المحاولة بعد ثوانٍ...");
+                return;
+            }
+
+            const zip = new JSZip();
+
+            // Add all project files into the ZIP structure according to their relative paths
+            Object.keys(projectFiles).forEach(fileName => {
+                zip.file(fileName, projectFiles[fileName]);
+            });
+
+            // Generate zip file and create download link
+            zip.generateAsync({ type: "blob" }).then(function(content) {
+                const downloadLink = document.createElement("a");
+                downloadLink.href = URL.createObjectURL(content);
+                downloadLink.download = "Project_Export_" + new Date().toISOString().slice(0, 10) + ".zip";
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            });
+        }
+
+        function downloadActiveFile() {
+            saveCurrentCode();
+            const content = projectFiles[activeFileName] || "";
+            const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = activeFileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
