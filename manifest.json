@@ -1,6 +1,6 @@
 {
   "short_name":"Img2Excel","name":"Image to Excel Converter",
   "icons":[{"src":"/assets/icons/icon-192.png","type":"image/png","sizes":"192x192","purpose":"any maskable"},{"src":"/assets/icons/icon-512.png","type":"image/png","sizes":"512x512","purpose":"any maskable"}],
-  "start_url":"/index.html","scope":"/","id":"/","background_color":"#f8fafc","theme_color":"#0d9488","display":"standalone","orientation":"portrait",
+  "start_url":"/img2excel/","scope":"/img2excel/","id":"/img2excel/","background_color":"#f8fafc","theme_color":"#0d9488","display":"standalone","orientation":"portrait",
   "description":"تحويل الصور والجداول والمستندات إلى ملفات Excel قابلة للتحرير."
 }
