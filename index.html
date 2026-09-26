@@ -174,6 +174,11 @@
             background-color: var(--table-row-hover);
         }
     </style>
+    <meta name="theme-color" content="#0d9488">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/parser.js" defer></script>
+    <script src="/assets/js/app.js" defer></script>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
 
@@ -244,7 +249,7 @@
         </div>
     </nav>
 
-    <main class="container mx-auto px-4 py-5 flex-1 max-w-7xl">
+    <main id="main-content" class="container mx-auto px-4 py-5 flex-1 max-w-7xl">
 
         <!-- Header Status Banner -->
         <section class="glass-panel rounded-2xl p-4 mb-5 flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -1777,5 +1782,18 @@
         });
 
     </script>
+<footer class="border-t border-slate-200 dark:border-slate-800 mt-8 py-6">
+  <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-400">
+    <nav class="legal-links flex flex-wrap justify-center items-center gap-4 mb-3" aria-label="روابط الموقع">
+      <a data-static-page href="/pages/about.html" class="hover:text-cyan-500">من نحن</a>
+      <a data-static-page href="/pages/contact.html" class="hover:text-cyan-500">اتصل بنا</a>
+      <a data-static-page href="/legal/privacy.html" class="hover:text-cyan-500">سياسة الخصوصية</a>
+      <a data-static-page href="/legal/terms.html" class="hover:text-cyan-500">شروط الاستخدام</a>
+      <a data-static-page href="/legal/disclaimer.html" class="hover:text-cyan-500">إخلاء المسؤولية</a>
+      <a data-static-page href="/tools/excel-viewer.html" class="hover:text-cyan-500">معاينة Excel</a>
+    </nav>
+    <p>Img2Excel — أداة لتحويل الصور والجداول إلى Excel. راجع النتائج قبل الاعتماد عليها.</p>
+  </div>
+</footer>
 </body>
 </html>
