@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>https://gpldroid.github.io/img2excel/</loc></url>
-<url><loc>https://gpldroid.github.io/img2excel/pages/about.html</loc></url>
-<url><loc>https://gpldroid.github.io/img2excel/pages/contact.html</loc></url>
-<url><loc>https://gpldroid.github.io/img2excel/legal/privacy.html</loc></url>
-<url><loc>https://gpldroid.github.io/img2excel/legal/terms.html</loc></url>
-<url><loc>https://gpldroid.github.io/img2excel/legal/disclaimer.html</loc></url>
-<url><loc>https://gpldroid.github.io/img2excel/tools/excel-viewer.html</loc></url>
+<url><loc>https://protools.cloud/</loc></url>
+<url><loc>https://protools.cloud/pages/about.html</loc></url>
+<url><loc>https://protools.cloud/pages/contact.html</loc></url>
+<url><loc>https://protools.cloud/pages/advertising.html</loc></url>
+<url><loc>https://protools.cloud/pages/image-to-excel-guide.html</loc></url>
+<url><loc>https://protools.cloud/pages/ocr-accuracy-guide.html</loc></url>
+<url><loc>https://protools.cloud/pages/ocr-table-extraction.html</loc></url>
+<url><loc>https://protools.cloud/legal/privacy.html</loc></url>
+<url><loc>https://protools.cloud/legal/terms.html</loc></url>
+<url><loc>https://protools.cloud/legal/disclaimer.html</loc></url>
 </urlset>
