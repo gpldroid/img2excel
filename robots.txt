@@ -7,7 +7,4 @@ Allow: /
 User-agent: Mediapartners-Google
 Allow: /
 
-User-agent: Google-adstxt
-Disallow:
-
-Sitemap: https://gpldroid.github.io/img2excel/sitemap.xml
+Sitemap: https://protools.cloud/sitemap.xml
