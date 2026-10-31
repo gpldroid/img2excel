@@ -29,3 +29,28 @@ html.dark .app-preset-control,html.dark .app-theme-toggle{border-color:#334155;c
 @media(max-width:900px){.site-header__inner{justify-content:center}.site-brand{margin-inline:auto}.site-nav{order:3;width:100%;gap:8px 15px}.app-header-controls{justify-content:center}}
 @media(max-width:560px){.site-header__inner{width:calc(100% - 22px);gap:9px;padding:10px 0}.site-nav{gap:5px 12px}.site-nav a{font-size:12px}.app-header-controls{width:100%;gap:6px}.app-engine-switcher button{font-size:10px;padding:7px 8px}.app-preset-control{font-size:10px;padding:6px}.app-preset-control select{max-width:118px}.site-footer{padding-top:24px}.site-footer__links{gap:10px 14px}.site-footer__links a{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.site-nav a{transition:none}}
+
+
+/* ProTools shared chrome — Bento Grid visual language. */
+.site-header{background:rgba(255,255,255,.88);border-bottom:1px solid #e8eaf2;box-shadow:0 5px 24px rgba(32,36,58,.045);backdrop-filter:blur(18px)}
+.site-header__inner{width:min(1360px,calc(100% - 40px));min-height:76px;gap:20px}
+.site-brand__mark{background:linear-gradient(135deg,#635bff,#16b8a6);border-radius:15px;box-shadow:0 8px 20px rgba(99,91,255,.22)}
+.site-nav a{border-radius:9px;padding:8px 10px;border:1px solid transparent;transition:background .22s ease,color .22s ease,transform .22s ease}
+.site-nav a:hover,.site-nav a[aria-current=page]{color:#5148e8;background:#f2f1ff;border-color:#e7e5ff;transform:translateY(-1px)}
+.app-engine-switcher{background:#f4f4fb;border-color:#e7e8f1;border-radius:13px}
+.app-engine-switcher button:first-child{background:linear-gradient(110deg,#635bff,#16b8a6);box-shadow:0 4px 12px rgba(99,91,255,.2)}
+.app-preset-control,.app-theme-toggle{border-color:#e4e6f0;background:#fff;border-radius:12px}
+.site-footer{background:linear-gradient(135deg,#f0f1fa,#f7f8fc);color:#30354d;border-top:1px solid #e6e8f1;margin-top:44px}
+.site-footer__brand>a{color:#292d48}.site-footer__brand p{color:#68708a}
+.site-footer__links{border-bottom-color:#dfe2ed}.site-footer__links a,.site-footer__bottom a{color:#59617b}
+.site-footer__links a:hover,.site-footer__bottom a:hover{color:#635bff}
+.site-footer__bottom{color:#737991}
+html.dark .site-header{background:rgba(13,18,32,.94);border-bottom-color:#293247}
+html.dark .site-nav a:hover,html.dark .site-nav a[aria-current=page]{color:#b8b2ff;background:rgba(99,91,255,.13);border-color:rgba(99,91,255,.2)}
+html.dark .app-engine-switcher{background:#111c2e;border-color:#334155}
+html.dark .app-preset-control,html.dark .app-theme-toggle{background:#111c2e;border-color:#334155;color:#cbd5e1}
+html.dark .site-footer{background:linear-gradient(135deg,#101827,#17172d);color:#e2e8f0;border-top-color:#293247}
+html.dark .site-footer__brand>a{color:#fff}html.dark .site-footer__brand p,html.dark .site-footer__links a,html.dark .site-footer__bottom a,html.dark .site-footer__bottom{color:#a6b0c4}
+.site-header,.site-footer,.site-nav a,.site-footer a{transition:background-color .28s ease,color .28s ease,border-color .28s ease}
+@media(max-width:900px){.site-header__inner{width:calc(100% - 26px)}}
+@media(prefers-reduced-motion:reduce){.site-header,.site-footer,.site-nav a,.site-footer a{transition:none}}

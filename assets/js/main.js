@@ -37,7 +37,7 @@
         });
 
         // Theme System
-        let currentTheme = localStorage.getItem('app-theme') || 'dark';
+        let currentTheme = localStorage.getItem('app-theme') || 'light';
 
         function applyTheme(theme) {
             currentTheme = theme;
