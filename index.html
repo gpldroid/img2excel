@@ -273,8 +273,8 @@
                                 <label for="ocrLanguageSelect" class="text-xs font-bold text-slate-800 dark:text-slate-200">OCR languages</label>
                                 <span id="ocrLanguageSummary" class="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold">Automatic detection enabled</span>
                             </div>
-                            <select id="ocrLanguageSelect" aria-describedby="ocrLanguageHelp" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-xs p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
-                            <p id="ocrLanguageHelp" class="text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">Auto-detect is enabled by default. ProTools detects the writing system and selects a matching OCR pack. For Latin-script languages such as French or German, choose the exact language manually for best accuracy. Language data is downloaded once and cached by your browser.</p>
+                            <select id="ocrLanguageSelect" multiple size="5" aria-describedby="ocrLanguageHelp" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-xs p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
+                            <p id="ocrLanguageHelp" class="text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">Auto-detect is enabled by default. ProTools detects the writing system and selects a matching OCR pack. For Latin-script languages such as French or German, select up to three exact languages manually for best accuracy. Language data is downloaded once and cached by your browser.</p>
                         </div>
 
                         <button id="btnProcess" class="hidden w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-black py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-xl transition-all text-sm">
