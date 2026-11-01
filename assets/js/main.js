@@ -676,7 +676,7 @@
             const isRightToLeft = selectedOcrLanguages.includes('ara') ||
                 selectedOcrLanguages.some(code => OCR_RTL_LANGUAGES.has(code)) ||
                 /arabic|hebrew/i.test(String(detectedOcrScript || ocrData.script || '')) ||
-                rtlCharacterCount > ltrCharacterCount;
+                (rtlCharacterCount > 0 && rtlCharacterCount / Math.max(1, rtlCharacterCount + ltrCharacterCount) >= 0.2);
             const cellGap = Math.max(18, medianHeight * 1.35);
             const rowCells = rows.map(row => {
                 const ordered = row.words.slice().sort((a, b) => isRightToLeft ? b.bbox.x1 - a.bbox.x1 : a.bbox.x0 - b.bbox.x0);
