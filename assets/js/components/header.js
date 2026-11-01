@@ -13,7 +13,6 @@ const links=[
 ];
 const nav=links.map(([href,label])=>'<a href="'+href+'"'+(path===href?' aria-current="page"':'')+'>'+label+'</a>').join('');
 const controls=isApp?'<div class="app-header-controls" aria-label="Application controls">'+
-'<label class="app-preset-control"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span>Document type</span><select id="docPresetSelect" aria-label="Document type"><option value="auto">General table</option><option value="receipt">Invoice / receipt</option><option value="attendance">Attendance sheet</option><option value="financial">Financial report</option></select></label>'+
 '<button id="btnThemeToggle" class="app-theme-toggle" type="button" onclick="toggleTheme()" title="Toggle color theme" aria-label="Toggle color theme"><i id="themeIcon" class="fa-solid fa-moon" aria-hidden="true"></i><span id="themeLabel" class="sr-only">Switch to dark mode</span></button>'+
 '</div>':'';
 const tabs=[
