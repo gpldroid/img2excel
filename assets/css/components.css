@@ -54,3 +54,8 @@ html.dark .site-footer__brand>a{color:#fff}html.dark .site-footer__brand p,html.
 .site-header,.site-footer,.site-nav a,.site-footer a{transition:background-color .28s ease,color .28s ease,border-color .28s ease}
 @media(max-width:900px){.site-header__inner{width:calc(100% - 26px)}}
 @media(prefers-reduced-motion:reduce){.site-header,.site-footer,.site-nav a,.site-footer a{transition:none}}
+
+/* ProTools SVG brand mark sizing */
+.site-brand__mark{display:block;object-fit:contain;flex:0 0 42px;background:transparent!important;box-shadow:none!important;border-radius:0!important}
+.site-brand strong{letter-spacing:-.025em;font-size:17px}
+.site-brand small{letter-spacing:.015em}

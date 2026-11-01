@@ -1,12 +1,13 @@
 {
-  "short_name": "Img2Excel",
-  "name": "IMG2EXCEL - Image to Excel Converter",
+  "short_name": "ProTools",
+  "name": "ProTools - Image to Excel Converter",
   "start_url": "/",
   "scope": "/",
   "id": "/",
   "background_color": "#f8fafc",
-  "theme_color": "#0d9488",
+  "theme_color": "#635bff",
   "display": "standalone",
   "orientation": "portrait",
-  "description": "تحويل الصور والجداول والمستندات إلى ملفات Excel قابلة للتحرير."
+  "icons": [{"src":"/assets/images/protools-mark.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}],
+  "description": "أدوات ويب ذكية لتحويل الصور والجداول إلى ملفات Excel وCSV قابلة للتحرير."
 }

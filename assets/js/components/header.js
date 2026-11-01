@@ -21,6 +21,6 @@ const controls=isApp?'<div class="app-header-controls" aria-label="إعدادا�
 '<button id="btnThemeToggle" class="app-theme-toggle" type="button" onclick="toggleTheme()" title="التبديل بين الوضع الفاتح والداكن" aria-label="تبديل المظهر"><i id="themeIcon" data-lucide="sun"></i><span id="themeLabel" class="sr-only">الوضع المضيء</span></button>'+
 '</div>':'';
 mount.outerHTML='<header class="site-header'+(isApp?' site-header--app':'')+'"><div class="site-header__inner">'+
-'<a class="site-brand" href="/" aria-label="IMG2EXCEL - الصفحة الرئيسية"><span class="site-brand__mark" aria-hidden="true">X</span><span><strong>IMG2EXCEL</strong><small>Image to Excel Converter</small></span></a>'+
+'<a class="site-brand" href="/" aria-label="ProTools - الصفحة الرئيسية"><img class="site-brand__mark" src="/assets/images/protools-mark.svg" alt="" width="42" height="42"><span><strong>ProTools</strong><small>Online File &amp; Productivity Tools</small></span></a>'+
 '<nav class="site-nav" aria-label="التنقل الرئيسي">'+nav+'</nav>'+controls+'</div></header>';
 })();
