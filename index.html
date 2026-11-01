@@ -140,7 +140,7 @@
         <header class="app-hero text-center mb-5">
             <span class="app-hero__eyebrow">SMART DOCUMENT WORKSPACE</span>
             <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">Convert Images to Excel and CSV with OCR</h1>
-            <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">Extract tables from images, review and edit the data, then export an editable Excel spreadsheet.</p>
+            <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">Extract tables from images in a wide range of languages, review and edit the data, then export an editable Excel spreadsheet.</p>
         </header>
 
         <!-- Header Status Banner -->
@@ -275,6 +275,15 @@
                             <button id="btnRetake" class="hidden flex-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 border border-slate-300 dark:border-slate-700 transition-all">
                                 <i data-lucide="refresh-cw" class="w-4 h-4"></i> Retake image
                             </button>
+                        </div>
+
+                        <div class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-900/70 p-3 space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <label for="ocrLanguageSelect" class="text-xs font-bold text-slate-800 dark:text-slate-200">OCR languages</label>
+                                <span id="ocrLanguageSummary" class="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold">English selected</span>
+                            </div>
+                            <select id="ocrLanguageSelect" multiple size="5" aria-describedby="ocrLanguageHelp" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-xs p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
+                            <p id="ocrLanguageHelp" class="text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">Choose up to three languages found in the image. English is selected by default. Language data is downloaded when first needed and cached by your browser.</p>
                         </div>
 
                         <button id="btnProcess" class="hidden w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-black py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-xl transition-all text-sm">
@@ -547,7 +556,7 @@
                     <div class="space-y-2 pt-2">
                         <h5 class="font-bold text-sm text-slate-900 dark:text-white">Why use ProTools?</h5>
                         <ul class="list-disc list-inside space-y-1 text-xs text-slate-600 dark:text-slate-400">
-                            <li>Recognize tables containing English and Arabic text and digits.</li>
+                            <li>Recognize text using a broad range of Tesseract language packs, including English, Russian, and Arabic.</li>
                             <li>Preview and enhance images before running OCR.</li>
                             <li>Edit extracted data, remove empty rows, and normalize digits.</li>
                             <li>Local OCR processing keeps image recognition in your browser. See the Privacy Policy for analytics and browser storage details.</li>
