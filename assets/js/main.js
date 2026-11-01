@@ -484,18 +484,50 @@
             return match ? match[1] : 'eng';
         }
 
-        async function detectOcrLanguage(imageData) {
-            if (!activeOcrDetector) {
-                activeOcrDetector = await Tesseract.createWorker('eng', 1, { legacyCore: true, legacyLang: true,
-                    logger: m => {
-                        if (m.status === 'loading language traineddata' || m.status === 'initializing api') {
-                            updateOcrProgress('Preparing automatic language detection…');
-                        }
-                    }
-                });
-            }
+        async function withOcrTimeout(promise, timeoutMs, operation) {
+            let timeoutId;
             try {
-                const result = await activeOcrDetector.detect(imageData);
+                return await Promise.race([
+                    promise,
+                    new Promise((_, reject) => {
+                        timeoutId = setTimeout(() => reject(new Error(operation + ' timed out after ' + Math.round(timeoutMs / 1000) + ' seconds')), timeoutMs);
+                    })
+                ]);
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        async function detectOcrLanguage(imageData) {
+            let detectorCreation = null;
+            try {
+                updateOcrProgress('Preparing automatic writing-system detection…');
+                progressBar.style.width = '8%';
+                progressText.innerText = 'Preparing…';
+
+                if (!activeOcrDetector) {
+                    detectorCreation = Tesseract.createWorker('eng', 1, {
+                        legacyCore: true,
+                        legacyLang: true,
+                        logger: m => {
+                            if (m.status === 'loading language traineddata' || m.status === 'initializing api') {
+                                updateOcrProgress('Preparing automatic language detection…');
+                                progressText.innerText = 'Preparing…';
+                            }
+                        }
+                    });
+                    try {
+                        activeOcrDetector = await withOcrTimeout(detectorCreation, 12000, 'Writing-system detector initialization');
+                    } catch (error) {
+                        // If initialization completes after the timeout, release the unused worker.
+                        detectorCreation.then(worker => worker.terminate()).catch(() => {});
+                        throw error;
+                    }
+                }
+
+                updateOcrProgress('Analyzing document writing system…');
+                progressText.innerText = 'Analyzing…';
+                const result = await withOcrTimeout(activeOcrDetector.detect(imageData), 12000, 'Writing-system detection');
                 const script = result && result.data && result.data.script ? result.data.script : '';
                 const confidence = Number(result && result.data && result.data.script_confidence);
                 const language = languageForDetectedScript(script);
@@ -503,8 +535,20 @@
                 // Latin-script text defaults to English; users can select an exact pack below.
                 return { language, script, confidence };
             } catch (error) {
-                console.warn('OCR script detection unavailable; falling back to English.', error);
+                console.warn('OCR script detection unavailable; using the English + Arabic fallback.', error);
+                if (activeOcrDetector) {
+                    const detector = activeOcrDetector;
+                    activeOcrDetector = null;
+                    detector.terminate().catch(() => {});
+                }
                 return { language: 'eng', script: 'unknown', confidence: 0, fallbackLanguages: ['eng', 'ara'] };
+            }
+        }
+
+        async function terminateOcrWorker(worker) {
+            if (!worker || typeof worker.terminate !== 'function') return;
+            try { await worker.terminate(); } catch (error) {
+                console.warn('Unable to terminate an OCR worker cleanly.', error);
             }
         }
 
@@ -512,25 +556,47 @@
             const languageKey = languages.join('+');
             if (activeOcrWorker && activeOcrWorkerLanguages === languageKey) return activeOcrWorker;
             if (activeOcrWorker) {
-                await activeOcrWorker.terminate();
+                const previousWorker = activeOcrWorker;
                 activeOcrWorker = null;
                 activeOcrWorkerLanguages = '';
+                await terminateOcrWorker(previousWorker);
             }
-            activeOcrWorker = await Tesseract.createWorker(languageKey, 1, {
-                logger: m => {
-                    if (m.status === 'loading language traineddata' || m.status === 'initializing api') {
-                        updateOcrProgress('Loading ' + languageKey.replace(/\+/g, ' + ') + ' OCR data…');
+
+            updateOcrProgress('Starting the OCR engine for ' + languageKey.replace(/\\+/g, ' + ') + '…');
+            progressBar.style.width = '12%';
+            progressText.innerText = 'Loading…';
+
+            let workerCreation;
+            try {
+                workerCreation = Tesseract.createWorker(languageKey, 1, {
+                    logger: m => {
+                        if (m.status === 'loading language traineddata' || m.status === 'initializing api' || m.status === 'loading tesseract core') {
+                            updateOcrProgress('Loading ' + languageKey.replace(/\\+/g, ' + ') + ' OCR resources…');
+                            progressBar.style.width = '12%';
+                            progressText.innerText = 'Loading…';
+                        }
+                        if (m.status === 'recognizing text') {
+                            const pct = Math.max(0, Math.min(99, Math.round(m.progress * 100)));
+                            progressBar.style.width = pct + '%';
+                            progressText.innerText = pct + '%';
+                            updateOcrProgress('Recognizing text locally… ' + pct + '%');
+                        }
                     }
-                    if (m.status === 'recognizing text') {
-                        const pct = Math.round(m.progress * 100);
-                        progressBar.style.width = pct + '%';
-                        progressText.innerText = pct + '%';
-                        updateOcrProgress('Recognizing text locally… ' + pct + '%');
-                    }
+                });
+
+                try {
+                    activeOcrWorker = await withOcrTimeout(workerCreation, 90000, 'OCR engine initialization');
+                    activeOcrWorkerLanguages = languageKey;
+                    return activeOcrWorker;
+                } catch (error) {
+                    workerCreation.then(worker => terminateOcrWorker(worker)).catch(() => {});
+                    throw error;
                 }
-            });
-            activeOcrWorkerLanguages = languageKey;
-            return activeOcrWorker;
+            } catch (error) {
+                activeOcrWorker = null;
+                activeOcrWorkerLanguages = '';
+                throw error;
+            }
         }
 
         async function processTableWithTesseract() {
@@ -542,16 +608,35 @@
                 detectedOcrScript = detected.script || '';
                 languages = detected.fallbackLanguages || [detected.language];
                 const detectedName = detected.fallbackLanguages ? 'English + Arabic fallback' : (OCR_LANGUAGE_OPTIONS.find(item => item[0] === detected.language)?.[1] || 'English');
-                updateOcrProgress('Detected ' + (detected.script || 'unknown') + ' script · using ' + detectedName + ' OCR…');
+                updateOcrProgress((detected.fallbackLanguages ? 'Automatic detection unavailable · ' : 'Detected ' + (detected.script || 'unknown') + ' script · ') + 'using ' + detectedName + ' OCR…');
+                progressBar.style.width = '12%';
+                progressText.innerText = 'Loading…';
                 const summary = document.getElementById('ocrLanguageSummary');
-                if (summary) summary.textContent = 'Detected: ' + detectedName;
+                if (summary) summary.textContent = detected.fallbackLanguages ? 'Auto-detect fallback: ' + detectedName : 'Detected: ' + detectedName;
             } else {
                 languages = selectedOcrLanguages.filter(code => OCR_LANGUAGE_OPTIONS.some(item => item[0] === code)).slice(0, 3);
             }
             if (!languages.length) languages = ['eng'];
             const worker = await getOcrWorker(languages);
-            const result = await worker.recognize(canvasData, {}, { blocks: true });
-            return parseSpatialLayoutToGrid(result.data);
+            updateOcrProgress('Recognizing text locally…');
+            progressBar.style.width = '15%';
+            progressText.innerText = 'Starting…';
+
+            let recognition;
+            try {
+                recognition = await withOcrTimeout(worker.recognize(canvasData, {}, { blocks: true }), 120000, 'Text recognition');
+            } catch (error) {
+                if (activeOcrWorker === worker) {
+                    activeOcrWorker = null;
+                    activeOcrWorkerLanguages = '';
+                }
+                await terminateOcrWorker(worker);
+                throw error;
+            }
+            progressBar.style.width = '100%';
+            progressText.innerText = '100%';
+            updateOcrProgress('Text recognition complete. Preparing the editable table…');
+            return parseSpatialLayoutToGrid(recognition.data);
         }
 
         function parseSpatialLayoutToGrid(ocrData) {
@@ -585,9 +670,13 @@
             });
             rows.sort((a, b) => a.centerY - b.centerY);
 
+            const rtlText = words.map(word => word.text).join(' ');
+            const rtlCharacterCount = Array.from(rtlText).filter(char => { const point = char.codePointAt(0); return point >= 0x0590 && point <= 0x08FF; }).length;
+            const ltrCharacterCount = Array.from(rtlText).filter(char => { const point = char.codePointAt(0); return (point >= 0x0041 && point <= 0x005A) || (point >= 0x0061 && point <= 0x007A) || (point >= 0x00C0 && point <= 0x024F); }).length;
             const isRightToLeft = selectedOcrLanguages.includes('ara') ||
                 selectedOcrLanguages.some(code => OCR_RTL_LANGUAGES.has(code)) ||
-                (selectedOcrLanguages.includes('auto') && /arabic|hebrew/i.test(String(detectedOcrScript || ocrData.script || '')));
+                /arabic|hebrew/i.test(String(detectedOcrScript || ocrData.script || '')) ||
+                (rtlCharacterCount > 0 && rtlCharacterCount / Math.max(1, rtlCharacterCount + ltrCharacterCount) >= 0.2);
             const cellGap = Math.max(18, medianHeight * 1.35);
             const rowCells = rows.map(row => {
                 const ordered = row.words.slice().sort((a, b) => isRightToLeft ? b.bbox.x1 - a.bbox.x1 : a.bbox.x0 - b.bbox.x0);
