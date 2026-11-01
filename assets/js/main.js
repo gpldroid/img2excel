@@ -671,8 +671,8 @@
             rows.sort((a, b) => a.centerY - b.centerY);
 
             const rtlText = words.map(word => word.text).join(' ');
-            const rtlCharacterCount = (rtlText.match(/[\\u0590-\\u08FF]/g) || []).length;
-            const ltrCharacterCount = (rtlText.match(/[A-Za-z\\u00C0-\\u024F]/g) || []).length;
+            const rtlCharacterCount = Array.from(rtlText).filter(char => { const point = char.codePointAt(0); return point >= 0x0590 && point <= 0x08FF; }).length;
+            const ltrCharacterCount = Array.from(rtlText).filter(char => { const point = char.codePointAt(0); return (point >= 0x0041 && point <= 0x005A) || (point >= 0x0061 && point <= 0x007A) || (point >= 0x00C0 && point <= 0x024F); }).length;
             const isRightToLeft = selectedOcrLanguages.includes('ara') ||
                 selectedOcrLanguages.some(code => OCR_RTL_LANGUAGES.has(code)) ||
                 /arabic|hebrew/i.test(String(detectedOcrScript || ocrData.script || '')) ||
