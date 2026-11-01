@@ -486,7 +486,7 @@
 
         async function detectOcrLanguage(imageData) {
             if (!activeOcrDetector) {
-                activeOcrDetector = await Tesseract.createWorker('osd', 1, {
+                activeOcrDetector = await Tesseract.createWorker('eng', 1, { legacyCore: true, legacyLang: true,
                     logger: m => {
                         if (m.status === 'loading language traineddata' || m.status === 'initializing api') {
                             updateOcrProgress('Preparing automatic language detection…');
@@ -550,7 +550,7 @@
             }
             if (!languages.length) languages = ['eng'];
             const worker = await getOcrWorker(languages);
-            const result = await worker.recognize(canvasData);
+            const result = await worker.recognize(canvasData, {}, { blocks: true });
             return parseSpatialLayoutToGrid(result.data);
         }
 
