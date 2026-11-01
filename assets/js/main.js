@@ -556,7 +556,7 @@
             activeOcrWorker = await Tesseract.createWorker(languageKey, 1, {
                 logger: m => {
                     if (m.status === 'loading language traineddata' || m.status === 'initializing api') {
-                        updateOcrProgress('Loading ' + languageKey.replace(/\\+/g, ' + ') + ' OCR data…');
+                        updateOcrProgress('Loading ' + languageKey.replace(/\+/g, ' + ') + ' OCR data…');
                         progressBar.style.width = '12%';
                         progressText.innerText = 'Loading…';
                     }
