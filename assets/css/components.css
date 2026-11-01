@@ -362,3 +362,17 @@ html.dark .mobile-tab--contact i{color:#FDA4AF}
 html.dark .mobile-tab.is-active{color:#FED7AA;background:#3A2B22;box-shadow:inset 0 0 0 1px rgba(253,186,116,.18)}
 html.dark .mobile-tab.is-active i{color:#FDBA74}
 @media(prefers-reduced-motion:reduce){.mobile-tab i{transition:none}}
+
+
+/* Navigation icons: consistent visual cues across desktop, tablet and mobile menus. */
+.site-nav a,.mobile-site-menu a{display:inline-flex;align-items:center;gap:8px}
+.site-nav a>i,.mobile-site-menu a>i{width:16px;flex:0 0 16px;text-align:center;font-size:13px;color:#0F766E}
+.site-nav a[aria-current="page"]>i,.site-nav a:hover>i,.mobile-site-menu a[aria-current="page"]>i,.mobile-site-menu a:hover>i{color:#C2410C}
+.mobile-site-menu a{justify-content:flex-start}
+html.dark .site-nav a>i,html.dark .mobile-site-menu a>i{color:#5EEAD4}
+html.dark .site-nav a[aria-current="page"]>i,html.dark .site-nav a:hover>i,html.dark .mobile-site-menu a[aria-current="page"]>i,html.dark .mobile-site-menu a:hover>i{color:#FDBA74}
+
+/* Ad placements remain layout-stable while visually transparent. */
+.pt-ad-placement,.pt-ad-placement__inner{background:transparent!important}
+.pt-ad-placement__inner{border-color:transparent!important;box-shadow:none!important}
+html.dark .pt-ad-placement__inner{background:transparent!important;border-color:transparent!important}

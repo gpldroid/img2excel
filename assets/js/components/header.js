@@ -3,13 +3,13 @@ const mount=document.getElementById('site-header');
 const isApp=document.body.dataset.page==='app';
 const path=window.location.pathname||'/';
 const normalizedPath=path.length>1&&path.endsWith('/')?path.slice(0,-1):path;
-const links=[['/','Home'],['/tools/','Tools'],['/pages/image-to-excel-guide.html','Guides'],['/pages/ocr-accuracy-guide.html','OCR Accuracy'],['/pages/ocr-table-extraction.html','How It Works'],['/pages/about.html','About'],['/pages/contact.html','Contact']];
+const links=[['/','fa-house','Home'],['/tools/','fa-toolbox','Tools'],['/pages/image-to-excel-guide.html','fa-book-open','Guides'],['/pages/ocr-accuracy-guide.html','fa-bullseye','OCR Accuracy'],['/pages/ocr-table-extraction.html','fa-table-cells','How It Works'],['/pages/about.html','fa-circle-info','About'],['/pages/contact.html','fa-envelope','Contact']];
 const isGuidePage=normalizedPath.startsWith('/pages/')&&!['/pages/about.html','/pages/contact.html','/pages/advertising.html'].includes(normalizedPath);
 const isCurrentLink=(href)=>href==='/'
  ? normalizedPath==='/' 
  : href==='/tools/' ? normalizedPath==='/tools'||normalizedPath.startsWith('/tools/')
  : normalizedPath===(href.endsWith('/')?href.slice(0,-1):href);
-const nav=links.map(([href,label])=>'<a href="'+href+'"'+(isCurrentLink(href)?' aria-current="page"':'')+'>'+label+'</a>').join('');
+const nav=links.map(([href,icon,label])=>'<a href="'+href+'"'+(isCurrentLink(href)?' aria-current="page"':'')+'><i class="fa-solid '+icon+'" aria-hidden="true"></i><span>'+label+'</span></a>').join('');
 const siteOrigin='https://protools.cloud';
 const tabs=[[siteOrigin+'/#main-content','fa-wand-magic-sparkles','Convert','convert'],[siteOrigin+'/tools/','fa-toolbox','Tools','tools'],[siteOrigin+'/pages/image-to-excel-guide.html','fa-book-open','Guides','guides'],[siteOrigin+'/pages/about.html','fa-circle-info','About','about'],[siteOrigin+'/pages/contact.html','fa-envelope','Contact','contact']];
 const tabHtml=tabs.map(([href,icon,label,key],i)=>{const active=(key==='convert'&&isApp)||(key==='tools'&&(normalizedPath==='/tools'||normalizedPath.startsWith('/tools/')))||(key==='guides'&&isGuidePage)||(key==='about'&&normalizedPath==='/pages/about.html')||(key==='contact'&&normalizedPath==='/pages/contact.html');return '<a class="mobile-tab mobile-tab--'+key+(active?' is-active':'')+'" data-tab="'+key+'" href="'+href+'"'+(active?' aria-current="page"':'')+' aria-label="'+label+'" title="'+label+'"><i class="fa-solid '+icon+'" aria-hidden="true"></i><span>'+label+'</span></a>';}).join('');
