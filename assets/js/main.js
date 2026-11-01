@@ -3,26 +3,13 @@
         function gtag(){ dataLayer.push(arguments); }
 
         function initAnalytics() {
-            const storedGAId = localStorage.getItem('app_ga_id');
-            if (!storedGAId) return;
-
-            let gaScript = document.getElementById('gaScript');
-            if (!gaScript) {
-                gaScript = document.createElement('script');
-                gaScript.id = 'gaScript';
-                gaScript.async = true;
-                gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${storedGAId}`;
-                document.head.appendChild(gaScript);
-            } else {
-                gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${storedGAId}`;
+            const consent = window.ProToolsConsent && window.ProToolsConsent.getConsent();
+            if (!consent || consent.analytics !== true) return;
+            if (window.ProToolsConsent && typeof window.ProToolsConsent.loadAnalytics === 'function') {
+                window.ProToolsConsent.loadAnalytics(localStorage.getItem('app_ga_id') || 'G-NCECK5F16F');
             }
-
-            gtag('js', new Date());
-            gtag('config', storedGAId, {
-                send_page_view: true,
-                cookie_flags: 'max-age=7200;secure;samesite=none'
-            });
         }
+        document.addEventListener('protools:consent-updated', initAnalytics);
 
         // Safe Lucide icon rendering wrapper
         function safeCreateIcons() {
