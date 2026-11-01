@@ -2,6 +2,15 @@
 const mount=document.getElementById('site-footer');if(!mount)return;
 mount.outerHTML='<footer class="site-footer"><div class="site-footer__inner">'+
 '<div class="site-footer__intro"><a class="site-footer__brand" href="/" aria-label="ProTools home"><img src="/assets/images/protools-mark.svg" alt="" width="38" height="38"><span>ProTools</span></a><p>Practical browser-based tools for images, PDFs and spreadsheet data. Convert smarter. Work faster.</p></div>'+
+'<nav class="site-footer__social" aria-label="Social media profiles"><h2>Follow</h2><div class="site-footer__social-links">'+
+'<a href="https://www.pinterest.com/laracheblog" target="_blank" rel="noopener noreferrer" aria-label="Pinterest" title="Pinterest"><i class="fa-brands fa-pinterest-p" aria-hidden="true"></i></a>'+
+'<a href="https://github.com/gpldroid" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>'+
+'<a href="https://www.instagram.com/larache_forum" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>'+
+'<a href="https://x.com/laraforum" target="_blank" rel="noopener noreferrer" aria-label="X" title="X"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i></a>'+
+'<a href="https://www.threads.com/@larache_blog" target="_blank" rel="noopener noreferrer" aria-label="Threads" title="Threads"><i class="fa-brands fa-threads" aria-hidden="true"></i></a>'+
+'<a href="https://ma.linkedin.com/in/imad-limrani-0221aa3aa" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>'+
+'<a href="https://bsky.app/profile/3raychi.bsky.social" target="_blank" rel="noopener noreferrer" aria-label="Bluesky" title="Bluesky"><i class="fa-brands fa-bluesky" aria-hidden="true"></i></a>'+
+'</div></nav>'+
 '<div class="site-footer__ad pt-ad-placement pt-ad-placement--footer" aria-label="Advertisement"><div class="pt-ad-placement__inner"><span class="pt-ad-placement__label">Advertisement</span><ins class="adsbygoogle" style="display:block;width:100%;height:auto" data-ad-client="ca-pub-6996931662051674" data-ad-slot="1190274186"></ins></div></div>'+
 '<div class="site-footer__columns">'+
 '<section class="site-footer__column"><h2>Tools</h2><a href="/tools/">All browser tools</a><a href="/tools/image-to-text.html">Image to Text</a><a href="/tools/pdf-to-excel.html">PDF to Excel</a><a href="/tools/image-compressor.html">Image Compressor</a><a href="/tools/csv-to-excel.html">CSV to Excel</a></section>'+
