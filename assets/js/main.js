@@ -99,7 +99,7 @@
         function handleContactSubmit(e) {
             e.preventDefault();
             const name = document.getElementById('contactName').value;
-            showToast(`شكراً لك يا ${name}! تم إرسال رسالتك بنجاح وسيتم الرد عليك في أقرب وقت.`, "success", "Message sent");
+            showToast(`Thanks, ${name}! Your message has been sent. We will get back to you soon.`, "success", "Message sent");
             document.getElementById('contactForm').reset();
             setTimeout(() => {
                 closeLegalModal();
@@ -568,8 +568,8 @@
                 dataTableBody.appendChild(tr);
             });
 
-            rowCountText.innerText = `عدد الصفوف: ${extractedGridData.length}`;
-            colCountText.innerText = `عدد الأعمدة: ${numCols}`;
+            rowCountText.innerText = `Rows: ${extractedGridData.length}`;
+            colCountText.innerText = `Columns: ${numCols}`;
             calculateTableStats();
             safeCreateIcons();
         }
@@ -690,7 +690,7 @@
 
         window.deleteColumn = (cIdx) => {
             if (extractedGridData[0].length <= 1) {
-                showToast("لا يمكن Delete column الوحيد المتبقي.", "error", "Notice");
+                showToast("The last remaining column cannot be deleted.", "error", "Notice");
                 return;
             }
             extractedGridData.forEach(row => row.splice(cIdx, 1));
@@ -804,7 +804,7 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Extracted data");
 
-            const fileName = `جدول_مستند_${new Date().toISOString().slice(0,10)}.xlsx`;
+            const fileName = `protools-table_${new Date().toISOString().slice(0,10)}.xlsx`;
             XLSX.writeFile(wb, fileName);
 
             showToast("The formatted Excel file was exported successfully.", "success", "Export complete");
