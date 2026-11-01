@@ -279,3 +279,18 @@ html.dark .pt-consent-always{background:#173B30;color:#86EFAC}
 @media(max-width:760px){.pt-consent-bar{bottom:calc(78px + env(safe-area-inset-bottom));padding:0 10px}.pt-consent-bar__inner{grid-template-columns:minmax(0,1fr);gap:9px;padding:11px;border-radius:14px}.pt-consent-bar__message{gap:9px}.pt-consent-bar__icon{width:32px;height:32px}.pt-consent-bar__actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.pt-consent-btn{min-height:35px;padding:0 8px}.pt-consent-settings{grid-template-columns:1fr;gap:6px}.pt-consent-settings__actions{justify-content:stretch}.pt-consent-settings__actions .pt-consent-btn{flex:1}}
 @media(max-width:360px){.pt-consent-bar__copy>span{font-size:10px}.pt-consent-bar__actions{gap:4px}.pt-consent-btn{font-size:10px;padding:0 5px}}
 @media(prefers-reduced-motion:reduce){.pt-consent-btn,.pt-consent-switch:before{transition:none!important}}
+
+
+/* Reserved, responsive AdSense placements shared across the application and content pages. */
+.pt-ad-placement{box-sizing:border-box;width:100%;display:flex;justify-content:center;align-items:center;padding:12px 16px;margin:14px auto;clear:both;overflow:visible;}
+.pt-ad-placement__inner{box-sizing:border-box;width:min(100%,728px);min-height:149px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px;border:1px solid #E4E7EC;border-radius:12px;background:#F8FAFC;}
+.pt-ad-placement__label{display:block;color:#667085;font:600 10px/1.2 Inter,system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;}
+.pt-ad-placement .adsbygoogle{display:inline-block;width:250px;height:125px;max-width:100%;}
+.pt-ad-placement--top{margin:10px auto 18px;}
+.pt-ad-placement--app{margin:12px auto 22px;}
+.pt-ad-placement--in-article{margin:24px auto;}
+.pt-ad-placement--footer{margin:0;padding:12px 0;}
+.pt-ad-placement--footer .pt-ad-placement__inner{width:min(100%,320px);}
+html.dark .pt-ad-placement__inner{background:#17212C;border-color:#344252;}
+html.dark .pt-ad-placement__label{color:#AAB4C0;}
+@media(max-width:480px){.pt-ad-placement{padding:10px 8px;margin:12px auto;}.pt-ad-placement__inner{min-height:145px;padding:6px;border-radius:10px;}.pt-ad-placement--top{margin:8px auto 14px;}.pt-ad-placement--in-article{margin:18px auto;}}
