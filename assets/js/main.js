@@ -50,18 +50,16 @@
                 html.classList.remove('dark');
                 html.classList.add('light');
                 if (themeIcon) {
-                    themeIcon.setAttribute('data-lucide', 'moon');
-                    themeIcon.className = 'w-4 h-4 text-indigo-600';
+                    themeIcon.className = 'fa-solid fa-moon';
                 }
-                if (themeLabel) themeLabel.innerText = 'الوضع المظلم';
+                if (themeLabel) themeLabel.innerText = 'Switch to dark mode';
             } else {
                 html.classList.remove('light');
                 html.classList.add('dark');
                 if (themeIcon) {
-                    themeIcon.setAttribute('data-lucide', 'sun');
-                    themeIcon.className = 'w-4 h-4 text-amber-500';
+                    themeIcon.className = 'fa-solid fa-sun';
                 }
-                if (themeLabel) themeLabel.innerText = 'الوضع المضيء';
+                if (themeLabel) themeLabel.innerText = 'Switch to light mode';
             }
             safeCreateIcons();
         }
@@ -128,7 +126,7 @@
         }
 
         // App Core State
-        let currentEngine = 'gemini';
+        let currentEngine = 'tesseract';
         let stream = null;
         let loadedImage = null;
         let rotationAngle = 0;
@@ -198,26 +196,6 @@
             setTimeout(() => {
                 toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
             }, 4000);
-        }
-
-        function setEngine(engine) {
-            currentEngine = engine;
-            const engineGemini = document.getElementById('engineGemini');
-            const engineTesseract = document.getElementById('engineTesseract');
-            const currentEngineLabel = document.getElementById('currentEngineLabel');
-            const engineDescription = document.getElementById('engineDescription');
-
-            if (engine === 'gemini') {
-                engineGemini.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md shadow-emerald-600/30";
-                engineTesseract.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all";
-                currentEngineLabel.innerText = "Gemini Vision AI + الضغط الذكي";
-                engineDescription.innerText = "يتم استخراج الجداول المعقدة والنصوص بآلية الضغط المسبق لتحقيق أعلى دقة وأسرع استجابة.";
-            } else {
-                engineTesseract.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md shadow-emerald-600/30";
-                engineGemini.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all";
-                currentEngineLabel.innerText = "المحرك المحلي (Tesseract OCR)";
-                engineDescription.innerText = "معالجة مباشرة على جهازك دون الحاجة لشبكة الإنترنت.";
-            }
         }
 
         async function startCamera() {
@@ -420,11 +398,7 @@
             progressCard.classList.remove('hidden');
 
             try {
-                if (currentEngine === 'gemini') {
-                    await processTableWithGeminiAI();
-                } else {
-                    await processTableWithTesseract();
-                }
+                await processTableWithTesseract();
 
                 document.getElementById('btnToggleSplitView').classList.remove('hidden');
                 saveCurrentToHistory();
@@ -432,7 +406,7 @@
 
                 // Send event to GA dynamically
                 if (typeof gtag === 'function') {
-                    gtag('event', 'document_scanned', { engine: currentEngine });
+                    gtag('event', 'document_scanned', { engine: 'tesseract' });
                 }
 
             } catch (err) {
@@ -444,100 +418,6 @@
                 progressCard.classList.add('hidden');
             }
         });
-
-        async function processTableWithGeminiAI() {
-            statusText.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 animate-spin text-cyan-500"></i> جاري معالجة المستند وتنسيق الجداول عبر Gemini Vision...`;
-            safeCreateIcons();
-            
-            progressBar.style.width = '25%';
-            progressText.innerText = '25%';
-
-            const compressedBase64 = getCompressedBase64Image(1500);
-
-            const preset = docPresetSelect.value;
-            let presetInstruction = "";
-            if (preset === "receipt") {
-                presetInstruction = "هذا المستند عبارة عن فاتورة شراء/إيصال مالي. ركز على استخراج أعمدة: اسم الصنف/الخدمة، الكمية، السعر الفردي، والإجمالي، مع إضافة حقول الضريبة والإجمالي النهائي إن وجدت.";
-            } else if (preset === "attendance") {
-                presetInstruction = "هذا المستند عبارة عن كشف حضور أو بيانات موظفين. استخرج أسماء الأشخاص، الأرقام التعريفية، حالات الحضور/الغياب، الملاحظات.";
-            } else if (preset === "financial") {
-                presetInstruction = "هذا المستند تقرير مالي/ميزانية. استخرج الأوصاف المالية، الفترات، المبالغ، والعملات إن وجدت بشكل دقيق جداً.";
-            } else {
-                presetInstruction = "استخرج جدول البيانات بالكامل مع المحافظة على التسلسل الدقيق للصفوف والأعمدة.";
-            }
-
-            const apiKey = ""; // API Key injected automatically in environment
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-            const systemPrompt = `أنت خبير محترف في تحليل الجداول والمستندات الورقية والمالية.
-مهمتك قراءة الجدول في الصورة وتنسيقه كـ JSON نقي فقط وفق النمط المحدد بدون أي شرح أو كلام إضافي:
-{
-  "headers": ["اسم العمود 1", "اسم العمود 2", ...],
-  "rows": [
-    ["قيمة 1", "قيمة 2", ...],
-    ["قيمة 3", "قيمة 4", ...]
-  ]
-}
-تعليمات هامة:
-1. حافظ على توجيه النصوص وتطابق الحقول.
-2. ${presetInstruction}
-3. لا تضع رموز markdown مثل \`\`\`json في البداية والنهاية، أرجع كائن JSON فقط.`;
-
-            const payload = {
-                contents: [
-                    {
-                        role: "user",
-                        parts: [
-                            { text: "قم بتحليل وتقسيم هذا الجدول بدقة متناهية إلى شبكة JSON متناسقة." },
-                            {
-                                inlineData: {
-                                    mimeType: "image/jpeg",
-                                    data: compressedBase64
-                                }
-                            }
-                        ]
-                    }
-                ],
-                generationConfig: {
-                    responseMimeType: "application/json"
-                },
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                }
-            };
-
-            progressBar.style.width = '65%';
-            progressText.innerText = '65%';
-
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) throw new Error(`Gemini API Error: ${response.status}`);
-
-            const result = await response.json();
-            progressBar.style.width = '90%';
-            progressText.innerText = '90%';
-
-            const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!jsonText) throw new Error("استجابة غير صالحة من AI");
-
-            const parsed = JSON.parse(jsonText);
-            
-            extractedGridData = [];
-            if (parsed.headers && parsed.headers.length > 0) {
-                extractedGridData.push(parsed.headers);
-            }
-            if (parsed.rows && parsed.rows.length > 0) {
-                parsed.rows.forEach(r => extractedGridData.push(r));
-            }
-
-            progressBar.style.width = '100%';
-            progressText.innerText = '100%';
-            renderTableUI();
-        }
 
         async function processTableWithTesseract() {
             const canvasData = previewCanvas.toDataURL('image/png');
