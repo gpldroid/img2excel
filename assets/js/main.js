@@ -3,26 +3,13 @@
         function gtag(){ dataLayer.push(arguments); }
 
         function initAnalytics() {
-            const storedGAId = localStorage.getItem('app_ga_id');
-            if (!storedGAId) return;
-
-            let gaScript = document.getElementById('gaScript');
-            if (!gaScript) {
-                gaScript = document.createElement('script');
-                gaScript.id = 'gaScript';
-                gaScript.async = true;
-                gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${storedGAId}`;
-                document.head.appendChild(gaScript);
-            } else {
-                gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${storedGAId}`;
+            const consent = window.ProToolsConsent && window.ProToolsConsent.getConsent();
+            if (!consent || consent.analytics !== true) return;
+            if (window.ProToolsConsent && typeof window.ProToolsConsent.loadAnalytics === 'function') {
+                window.ProToolsConsent.loadAnalytics(localStorage.getItem('app_ga_id') || 'G-NCECK5F16F');
             }
-
-            gtag('js', new Date());
-            gtag('config', storedGAId, {
-                send_page_view: true,
-                cookie_flags: 'max-age=7200;secure;samesite=none'
-            });
         }
+        document.addEventListener('protools:consent-updated', initAnalytics);
 
         // Safe Lucide icon rendering wrapper
         function safeCreateIcons() {
@@ -126,6 +113,11 @@
         }
 
         // App Core State
+        // OCR language packs remain independent of the site's future en/ru/ar interface locales.
+        const OCR_LANGUAGE_OPTIONS = [["eng","English"],["ara","Arabic"],["rus","Russian"],["fra","French"],["spa","Spanish"],["deu","German"],["por","Portuguese"],["ita","Italian"],["nld","Dutch"],["pol","Polish"],["ukr","Ukrainian"],["tur","Turkish"],["vie","Vietnamese"],["tha","Thai"],["jpn","Japanese"],["chi_sim","Chinese (Simplified)"],["chi_tra","Chinese (Traditional)"],["kor","Korean"],["hin","Hindi"],["ben","Bengali"],["urd","Urdu"],["fas","Persian"],["heb","Hebrew"],["ell","Greek"],["swe","Swedish"],["dan","Danish"],["nor","Norwegian"],["fin","Finnish"],["ces","Czech"],["slk","Slovak"],["slv","Slovenian"],["hrv","Croatian"],["srp","Serbian"],["srp_latn","Serbian (Latin)"],["bul","Bulgarian"],["ron","Romanian"],["hun","Hungarian"],["est","Estonian"],["lav","Latvian"],["lit","Lithuanian"],["isl","Icelandic"],["gle","Irish"],["cym","Welsh"],["eus","Basque"],["cat","Catalan"],["glg","Galician"],["afr","Afrikaans"],["amh","Amharic"],["asm","Assamese"],["aze","Azerbaijani"],["aze_cyrl","Azerbaijani (Cyrillic)"],["bel","Belarusian"],["bod","Tibetan"],["bos","Bosnian"],["bre","Breton"],["mya","Burmese"],["khm","Khmer"],["kan","Kannada"],["kat","Georgian"],["guj","Gujarati"],["ori","Odia"],["pan","Punjabi"],["tam","Tamil"],["tel","Telugu"],["mal","Malayalam"],["mar","Marathi"],["nep","Nepali"],["sin","Sinhala"],["lao","Lao"],["kaz","Kazakh"],["kir","Kyrgyz"],["uzb","Uzbek"],["uzb_cyrl","Uzbek (Cyrillic)"],["tgk","Tajik"],["tat","Tatar"],["uig","Uyghur"],["pus","Pashto"],["sqi","Albanian"],["mkd","Macedonian"],["mlt","Maltese"],["swa","Swahili"],["ind","Indonesian"],["msa","Malay"],["jav","Javanese"],["sun","Sundanese"],["fil","Filipino"],["yid","Yiddish"],["syr","Syriac"],["div","Dhivehi"],["tir","Tigrinya"],["yor","Yoruba"],["que","Quechua"],["oci","Occitan"],["fry","Frisian"],["gla","Scottish Gaelic"],["fao","Faroese"],["ltz","Luxembourgish"],["mon","Mongolian"],["mri","Maori"],["iku","Inuktitut"],["chr","Cherokee"],["hat","Haitian Creole"],["epo","Esperanto"],["lat","Latin"],["san","Sanskrit"],["grc","Ancient Greek"],["enm","Middle English"],["frm","Middle French"],["ita_old","Italian (Old)"],["spa_old","Spanish (Old)"],["equ","Mathematical / Equations"]];
+        const OCR_RTL_LANGUAGES = new Set(['ara', 'fas', 'urd', 'heb', 'pus', 'syr', 'yid', 'div', 'uig']);
+        let selectedOcrLanguages = ['eng'];
+
         let currentEngine = 'tesseract';
         let stream = null;
         let loadedImage = null;
@@ -142,6 +134,7 @@
         const previewCanvas = document.getElementById('previewCanvas');
         const rawCaptureCanvas = document.getElementById('rawCaptureCanvas');
         const fileInput = document.getElementById('fileInput');
+        const ocrLanguageSelect = document.getElementById('ocrLanguageSelect');
         
         const btnCapture = document.getElementById('btnCapture');
         const btnRetake = document.getElementById('btnRetake');
@@ -390,6 +383,44 @@
             return tempCanvas.toDataURL('image/jpeg', 0.88).split(',')[1];
         }
 
+        function initializeOcrLanguageSelector() {
+            if (!ocrLanguageSelect) return;
+            OCR_LANGUAGE_OPTIONS.forEach(([code, name]) => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = name + ' (' + code + ')';
+                ocrLanguageSelect.appendChild(option);
+            });
+            let savedLanguages = [];
+            try { savedLanguages = (localStorage.getItem('app_ocr_languages') || 'eng').split('+').filter(code => OCR_LANGUAGE_OPTIONS.some(item => item[0] === code)); }
+            catch (error) { savedLanguages = ['eng']; }
+            selectedOcrLanguages = [...new Set(savedLanguages)].slice(0, 3);
+            if (!selectedOcrLanguages.length) selectedOcrLanguages = ['eng'];
+            Array.from(ocrLanguageSelect.options).forEach(option => { option.selected = selectedOcrLanguages.includes(option.value); });
+            ocrLanguageSelect.addEventListener('change', () => {
+                let selected = Array.from(ocrLanguageSelect.selectedOptions).map(option => option.value);
+                if (selected.length > 3) {
+                    selected = selected.slice(0, 3);
+                    showToast('Select up to three OCR languages per scan to keep processing responsive.', 'warning', 'Language limit');
+                }
+                if (!selected.length) selected = ['eng'];
+                selectedOcrLanguages = [...new Set(selected)];
+                Array.from(ocrLanguageSelect.options).forEach(option => { option.selected = selectedOcrLanguages.includes(option.value); });
+                try { localStorage.setItem('app_ocr_languages', selectedOcrLanguages.join('+')); } catch (error) { /* Storage is optional. */ }
+                updateOcrLanguageSummary();
+            });
+            updateOcrLanguageSummary();
+        }
+
+        function updateOcrLanguageSummary() {
+            const summary = document.getElementById('ocrLanguageSummary');
+            if (!summary) return;
+            const names = selectedOcrLanguages.map(code => OCR_LANGUAGE_OPTIONS.find(item => item[0] === code)?.[1] || code);
+            summary.textContent = names.join(' + ') + ' selected';
+        }
+
+        initializeOcrLanguageSelector();
+
         btnProcess.addEventListener('click', async () => {
             if (!previewCanvas) return;
 
@@ -421,23 +452,26 @@
 
         async function processTableWithTesseract() {
             const canvasData = previewCanvas.toDataURL('image/png');
-
-            const worker = await Tesseract.createWorker('ara+eng', 1, {
-                logger: m => {
-                    if (m.status === 'recognizing text') {
-                        const pct = Math.round(m.progress * 100);
-                        progressBar.style.width = pct + '%';
-                        progressText.innerText = pct + '%';
-                        statusText.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-cyan-500"></i> Recognizing text locally with Tesseract...`;
-                        safeCreateIcons();
+            const languages = selectedOcrLanguages.length ? selectedOcrLanguages : ['eng'];
+            const languageLabel = languages.map(code => OCR_LANGUAGE_OPTIONS.find(item => item[0] === code)?.[1] || code).join(' + ');
+            let worker;
+            try {
+                worker = await Tesseract.createWorker(languages.join('+'), 1, {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            const pct = Math.round(m.progress * 100);
+                            progressBar.style.width = pct + '%';
+                            progressText.innerText = pct + '%';
+                            statusText.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-cyan-500"></i> Recognizing ${languageLabel} locally with Tesseract...`;
+                            safeCreateIcons();
+                        }
                     }
-                }
-            });
-
-            const ret = await worker.recognize(canvasData);
-            await worker.terminate();
-
-            parseSpatialLayoutToGrid(ret.data);
+                });
+                const ret = await worker.recognize(canvasData);
+                parseSpatialLayoutToGrid(ret.data);
+            } finally {
+                if (worker) await worker.terminate();
+            }
         }
 
         function parseSpatialLayoutToGrid(ocrData) {
@@ -464,7 +498,8 @@
             });
 
             lines.sort((a, b) => a.centerY - b.centerY);
-            lines.forEach(l => l.words.sort((a, b) => a.bbox.x0 - b.bbox.x0));
+            const isRightToLeft = selectedOcrLanguages.some(code => OCR_RTL_LANGUAGES.has(code));
+            lines.forEach(l => l.words.sort((a, b) => isRightToLeft ? b.bbox.x1 - a.bbox.x1 : a.bbox.x0 - b.bbox.x0));
 
             const xRanges = [];
             const xGapThreshold = 30;
@@ -481,7 +516,7 @@
                 });
             });
 
-            xRanges.sort((a, b) => a.x0 - b.x0);
+            xRanges.sort((a, b) => isRightToLeft ? b.x1 - a.x1 : a.x0 - b.x0);
 
             extractedGridData = lines.map(line => {
                 const row = new Array(xRanges.length).fill('');
@@ -635,7 +670,7 @@
                 });
             });
 
-            document.getElementById('statSum').innerText = `Sum: ${totalSum.toLocaleString('ar-EG')}`;
+            document.getElementById('statSum').innerText = `Sum: ${totalSum.toLocaleString('en-US')}`;
             document.getElementById('statAvg').innerText = `Average: ${(numericCount ? (totalSum / numericCount) : 0).toFixed(2)}`;
             document.getElementById('statCount').innerText = `Cells: ${totalCells}`;
         }
@@ -718,7 +753,7 @@
             if (extractedGridData.length === 0) return;
             const item = {
                 id: Date.now(),
-                timestamp: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
                 data: JSON.parse(JSON.stringify(extractedGridData)),
                 rows: extractedGridData.length,
                 cols: extractedGridData[0].length
