@@ -336,3 +336,29 @@ html.dark body[data-page="app"] #main-content button:focus-visible{outline-color
 .site-footer__social-links a:focus-visible{outline:3px solid #818cf8;outline-offset:3px}
 @media(max-width:560px){.site-footer__social-links{gap:8px}.site-footer__social-links a{width:40px;height:40px}}
 @media(prefers-reduced-motion:reduce){.site-footer__social-links a{transition:none}.site-footer__social-links a:hover{transform:none}}
+
+
+/* Mobile tab navigation: clear route states and high-contrast icon accents. */
+@media(max-width:760px){
+ .mobile-tab-bar{border-top-color:var(--iu-border);background:rgba(255,255,255,.97);box-shadow:0 -8px 26px rgba(32,40,51,.10)}
+ .mobile-tab{color:#596579;gap:5px;font-size:10px;font-weight:750;letter-spacing:.005em}
+ .mobile-tab i{font-size:18px;line-height:1;transition:color .18s ease,transform .18s ease}
+ .mobile-tab--convert i{color:#C2410C}
+ .mobile-tab--tools i{color:#2563EB}
+ .mobile-tab--guides i{color:#7C3AED}
+ .mobile-tab--about i{color:#0F766E}
+ .mobile-tab--contact i{color:#BE185D}
+ .mobile-tab.is-active{color:#9A3412;background:#FFF1E8;box-shadow:inset 0 0 0 1px rgba(194,65,12,.12)}
+ .mobile-tab.is-active i{color:#C2410C;transform:translateY(-1px)}
+ .mobile-tab:focus-visible{outline:3px solid rgba(194,65,12,.45);outline-offset:2px}
+}
+html.dark .mobile-tab-bar{background:rgba(22,30,40,.98);border-top-color:#3B4653}
+html.dark .mobile-tab{color:#C4CCD5}
+html.dark .mobile-tab--convert i{color:#FDBA74}
+html.dark .mobile-tab--tools i{color:#93C5FD}
+html.dark .mobile-tab--guides i{color:#C4B5FD}
+html.dark .mobile-tab--about i{color:#5EEAD4}
+html.dark .mobile-tab--contact i{color:#FDA4AF}
+html.dark .mobile-tab.is-active{color:#FED7AA;background:#3A2B22;box-shadow:inset 0 0 0 1px rgba(253,186,116,.18)}
+html.dark .mobile-tab.is-active i{color:#FDBA74}
+@media(prefers-reduced-motion:reduce){.mobile-tab i{transition:none}}
