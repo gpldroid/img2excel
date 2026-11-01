@@ -612,7 +612,7 @@
                 progressBar.style.width = '12%';
                 progressText.innerText = 'Loading…';
                 const summary = document.getElementById('ocrLanguageSummary');
-                if (summary) summary.textContent = 'Detected: ' + detectedName;
+                if (summary) summary.textContent = detected.fallbackLanguages ? 'Auto-detect fallback: ' + detectedName : 'Detected: ' + detectedName;
             } else {
                 languages = selectedOcrLanguages.filter(code => OCR_LANGUAGE_OPTIONS.some(item => item[0] === code)).slice(0, 3);
             }
@@ -670,9 +670,13 @@
             });
             rows.sort((a, b) => a.centerY - b.centerY);
 
+            const rtlText = words.map(word => word.text).join(' ');
+            const rtlCharacterCount = (rtlText.match(/[\\u0590-\\u08FF]/g) || []).length;
+            const ltrCharacterCount = (rtlText.match(/[A-Za-z\\u00C0-\\u024F]/g) || []).length;
             const isRightToLeft = selectedOcrLanguages.includes('ara') ||
                 selectedOcrLanguages.some(code => OCR_RTL_LANGUAGES.has(code)) ||
-                (selectedOcrLanguages.includes('auto') && /arabic|hebrew/i.test(String(detectedOcrScript || ocrData.script || '')));
+                /arabic|hebrew/i.test(String(detectedOcrScript || ocrData.script || '')) ||
+                rtlCharacterCount > ltrCharacterCount;
             const cellGap = Math.max(18, medianHeight * 1.35);
             const rowCells = rows.map(row => {
                 const ordered = row.words.slice().sort((a, b) => isRightToLeft ? b.bbox.x1 - a.bbox.x1 : a.bbox.x0 - b.bbox.x0);
