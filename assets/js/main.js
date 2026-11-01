@@ -120,6 +120,7 @@
         let activeOcrWorker = null;
         let activeOcrWorkerLanguages = '';
         let activeOcrDetector = null;
+        let detectedOcrScript = '';
 
         let currentEngine = 'tesseract';
         let stream = null;
@@ -538,6 +539,7 @@
             if (selectedOcrLanguages.includes('auto')) {
                 updateOcrProgress('Detecting the document writing system…');
                 const detected = await detectOcrLanguage(canvasData);
+                detectedOcrScript = detected.script || '';
                 languages = [detected.language];
                 const detectedName = OCR_LANGUAGE_OPTIONS.find(item => item[0] === detected.language)?.[1] || 'English';
                 updateOcrProgress('Detected ' + (detected.script || 'unknown') + ' script · using ' + detectedName + ' OCR…');
@@ -584,7 +586,7 @@
 
             const isRightToLeft = selectedOcrLanguages.includes('ara') ||
                 selectedOcrLanguages.some(code => OCR_RTL_LANGUAGES.has(code)) ||
-                (selectedOcrLanguages.includes('auto') && /arabic|hebrew/i.test(String(ocrData.script || '')));
+                (selectedOcrLanguages.includes('auto') && /arabic|hebrew/i.test(String(detectedOcrScript || ocrData.script || '')));
             const cellGap = Math.max(18, medianHeight * 1.35);
             const rowCells = rows.map(row => {
                 const ordered = row.words.slice().sort((a, b) => isRightToLeft ? b.bbox.x1 - a.bbox.x1 : a.bbox.x0 - b.bbox.x0);
