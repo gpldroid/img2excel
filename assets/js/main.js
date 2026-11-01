@@ -504,7 +504,7 @@
                 return { language, script, confidence };
             } catch (error) {
                 console.warn('OCR script detection unavailable; falling back to English.', error);
-                return { language: 'eng', script: 'Latin', confidence: 0 };
+                return { language: 'eng', script: 'unknown', confidence: 0, fallbackLanguages: ['eng', 'ara'] };
             }
         }
 
@@ -540,8 +540,8 @@
                 updateOcrProgress('Detecting the document writing system…');
                 const detected = await detectOcrLanguage(canvasData);
                 detectedOcrScript = detected.script || '';
-                languages = [detected.language];
-                const detectedName = OCR_LANGUAGE_OPTIONS.find(item => item[0] === detected.language)?.[1] || 'English';
+                languages = detected.fallbackLanguages || [detected.language];
+                const detectedName = detected.fallbackLanguages ? 'English + Arabic fallback' : (OCR_LANGUAGE_OPTIONS.find(item => item[0] === detected.language)?.[1] || 'English');
                 updateOcrProgress('Detected ' + (detected.script || 'unknown') + ' script · using ' + detectedName + ' OCR…');
                 const summary = document.getElementById('ocrLanguageSummary');
                 if (summary) summary.textContent = 'Detected: ' + detectedName;
@@ -555,7 +555,8 @@
         }
 
         function parseSpatialLayoutToGrid(ocrData) {
-            const words = (ocrData.words || []).filter(word => word && word.text && word.text.trim() && word.bbox);
+            const blockWords = (ocrData.blocks || []).flatMap(block => (block.paragraphs || []).flatMap(paragraph => (paragraph.lines || []).flatMap(line => line.words || [])));
+            const words = (ocrData.words && ocrData.words.length ? ocrData.words : blockWords).filter(word => word && word.text && word.text.trim() && word.bbox);
             if (!words.length) {
                 const fallbackLines = (ocrData.lines || []).map(line => String(line.text || '').trim()).filter(Boolean);
                 if (!fallbackLines.length) {
