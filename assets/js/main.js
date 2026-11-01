@@ -739,7 +739,7 @@
             historyList.innerHTML = scanHistory.map(item => `
                 <div onclick="loadFromHistory(${item.id})" class="p-3 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700/50 cursor-pointer transition-all flex items-center justify-between group">
                     <div>
-                        <span class="font-bold text-slate-800 dark:text-slate-200 block text-xs">مسح جدول (${item.rows}×${item.cols})</span>
+                        <span class="font-bold text-slate-800 dark:text-slate-200 block text-xs">Table scan (${item.rows} × ${item.cols})</span>
                         <span class="text-[10px] text-slate-500 font-mono">${item.timestamp}</span>
                     </div>
                     <i data-lucide="chevron-left" class="w-4 h-4 text-cyan-500 group-hover:-translate-x-1 transition-transform"></i>
