@@ -295,3 +295,34 @@ html.dark .pt-consent-always{background:#173B30;color:#86EFAC}
 html.dark .pt-ad-placement__inner{background:#17212C;border-color:#344252;}
 html.dark .pt-ad-placement__label{color:#AAB4C0;}
 @media(max-width:480px){.pt-ad-placement{padding:10px 8px;margin:12px auto;}.pt-ad-placement__inner{min-height:145px;padding:6px;border-radius:10px;}.pt-ad-placement--top{margin:8px auto 14px;}.pt-ad-placement--in-article{margin:18px auto;}.pt-ad-placement--footer{padding:10px 8px;}}.pt-ad-placement__inner{min-height:145px;padding:6px;border-radius:10px;}.pt-ad-placement--top{margin:8px auto 14px;}.pt-ad-placement--in-article{margin:18px auto;}}
+
+
+/* Accessible contrast refinements for the main converter workspace. */
+body[data-page="app"] .app-hero__eyebrow{color:#9A3412;background:#FFF7ED;border-color:#FDBA74}
+body[data-page="app"] .app-hero p{color:#475467}
+body[data-page="app"] #main-content .text-slate-500{color:#596579!important}
+body[data-page="app"] #main-content .text-slate-600{color:#475467!important}
+body[data-page="app"] #main-content .text-slate-700{color:#344054!important}
+body[data-page="app"] #main-content label,
+body[data-page="app"] #main-content h2,
+body[data-page="app"] #main-content h3{color:#202833}
+body[data-page="app"] #main-content input::placeholder,
+body[data-page="app"] #main-content textarea::placeholder{color:#667085;opacity:1}
+body[data-page="app"] #main-content input:focus-visible,
+body[data-page="app"] #main-content select:focus-visible,
+body[data-page="app"] #main-content textarea:focus-visible,
+body[data-page="app"] #main-content button:focus-visible{outline:3px solid rgba(194,65,12,.42);outline-offset:2px}
+html.dark body[data-page="app"] .app-hero__eyebrow{color:#FDBA74;background:#35271E;border-color:#854D0E}
+html.dark body[data-page="app"] .app-hero p{color:#D0D7E2}
+html.dark body[data-page="app"] #main-content .text-slate-500,
+html.dark body[data-page="app"] #main-content .text-slate-600,
+html.dark body[data-page="app"] #main-content .text-slate-700{color:#C4CCD5!important}
+html.dark body[data-page="app"] #main-content label,
+html.dark body[data-page="app"] #main-content h2,
+html.dark body[data-page="app"] #main-content h3{color:#F2F4F7}
+html.dark body[data-page="app"] #main-content input::placeholder,
+html.dark body[data-page="app"] #main-content textarea::placeholder{color:#AAB4C0}
+html.dark body[data-page="app"] #main-content input:focus-visible,
+html.dark body[data-page="app"] #main-content select:focus-visible,
+html.dark body[data-page="app"] #main-content textarea:focus-visible,
+html.dark body[data-page="app"] #main-content button:focus-visible{outline-color:rgba(253,186,116,.58)}
