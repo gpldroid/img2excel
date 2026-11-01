@@ -116,7 +116,11 @@
         // OCR language packs remain independent of the site's future en/ru/ar interface locales.
         const OCR_LANGUAGE_OPTIONS = [["eng","English"],["ara","Arabic"],["rus","Russian"],["fra","French"],["spa","Spanish"],["deu","German"],["por","Portuguese"],["ita","Italian"],["nld","Dutch"],["pol","Polish"],["ukr","Ukrainian"],["tur","Turkish"],["vie","Vietnamese"],["tha","Thai"],["jpn","Japanese"],["chi_sim","Chinese (Simplified)"],["chi_tra","Chinese (Traditional)"],["kor","Korean"],["hin","Hindi"],["ben","Bengali"],["urd","Urdu"],["fas","Persian"],["heb","Hebrew"],["ell","Greek"],["swe","Swedish"],["dan","Danish"],["nor","Norwegian"],["fin","Finnish"],["ces","Czech"],["slk","Slovak"],["slv","Slovenian"],["hrv","Croatian"],["srp","Serbian"],["srp_latn","Serbian (Latin)"],["bul","Bulgarian"],["ron","Romanian"],["hun","Hungarian"],["est","Estonian"],["lav","Latvian"],["lit","Lithuanian"],["isl","Icelandic"],["gle","Irish"],["cym","Welsh"],["eus","Basque"],["cat","Catalan"],["glg","Galician"],["afr","Afrikaans"],["amh","Amharic"],["asm","Assamese"],["aze","Azerbaijani"],["aze_cyrl","Azerbaijani (Cyrillic)"],["bel","Belarusian"],["bod","Tibetan"],["bos","Bosnian"],["bre","Breton"],["mya","Burmese"],["khm","Khmer"],["kan","Kannada"],["kat","Georgian"],["guj","Gujarati"],["ori","Odia"],["pan","Punjabi"],["tam","Tamil"],["tel","Telugu"],["mal","Malayalam"],["mar","Marathi"],["nep","Nepali"],["sin","Sinhala"],["lao","Lao"],["kaz","Kazakh"],["kir","Kyrgyz"],["uzb","Uzbek"],["uzb_cyrl","Uzbek (Cyrillic)"],["tgk","Tajik"],["tat","Tatar"],["uig","Uyghur"],["pus","Pashto"],["sqi","Albanian"],["mkd","Macedonian"],["mlt","Maltese"],["swa","Swahili"],["ind","Indonesian"],["msa","Malay"],["jav","Javanese"],["sun","Sundanese"],["fil","Filipino"],["yid","Yiddish"],["syr","Syriac"],["div","Dhivehi"],["tir","Tigrinya"],["yor","Yoruba"],["que","Quechua"],["oci","Occitan"],["fry","Frisian"],["gla","Scottish Gaelic"],["fao","Faroese"],["ltz","Luxembourgish"],["mon","Mongolian"],["mri","Maori"],["iku","Inuktitut"],["chr","Cherokee"],["hat","Haitian Creole"],["epo","Esperanto"],["lat","Latin"],["san","Sanskrit"],["grc","Ancient Greek"],["enm","Middle English"],["frm","Middle French"],["ita_old","Italian (Old)"],["spa_old","Spanish (Old)"],["equ","Mathematical / Equations"]];
         const OCR_RTL_LANGUAGES = new Set(['ara', 'fas', 'urd', 'heb', 'pus', 'syr', 'yid', 'div', 'uig']);
-        let selectedOcrLanguages = ['eng'];
+        let selectedOcrLanguages = ['auto'];
+        let activeOcrWorker = null;
+        let activeOcrWorkerLanguages = '';
+        let activeOcrDetector = null;
+        let detectedOcrScript = '';
 
         let currentEngine = 'tesseract';
         let stream = null;
@@ -225,6 +229,12 @@
             }
         }
 
+        window.addEventListener('pagehide', () => {
+            stopCamera();
+            if (activeOcrWorker) activeOcrWorker.terminate().catch(() => {});
+            if (activeOcrDetector) activeOcrDetector.terminate().catch(() => {});
+        });
+
         btnStartCamera.addEventListener('click', startCamera);
 
         btnCapture.addEventListener('click', () => {
@@ -312,40 +322,32 @@
         function applyFiltersAndPreview() {
             if (!loadedImage) return;
 
+            // Cap the working canvas to avoid allocating tens of millions of pixels
+            // from high-resolution phone photos. The original image remains untouched.
+            const maxDimension = 2400;
+            const sourceScale = Math.min(1, maxDimension / Math.max(loadedImage.width, loadedImage.height));
+            const sourceWidth = Math.max(1, Math.round(loadedImage.width * sourceScale));
+            const sourceHeight = Math.max(1, Math.round(loadedImage.height * sourceScale));
             const isVertical = Math.abs(rotationAngle) === 90 || Math.abs(rotationAngle) === 270;
-            const targetWidth = isVertical ? loadedImage.height : loadedImage.width;
-            const targetHeight = isVertical ? loadedImage.width : loadedImage.height;
+            const targetWidth = isVertical ? sourceHeight : sourceWidth;
+            const targetHeight = isVertical ? sourceWidth : sourceHeight;
 
             previewCanvas.width = targetWidth;
             previewCanvas.height = targetHeight;
+            document.getElementById('imgDimensionsText').innerText = `${loadedImage.width}x${loadedImage.height} px · optimized to ${targetWidth}x${targetHeight}`;
 
-            document.getElementById('imgDimensionsText').innerText = `${targetWidth}x${targetHeight} px`;
-
-            const ctx = previewCanvas.getContext('2d');
+            const ctx = previewCanvas.getContext('2d', { willReadFrequently: false });
             ctx.clearRect(0, 0, targetWidth, targetHeight);
-
             ctx.save();
             ctx.translate(targetWidth / 2, targetHeight / 2);
             ctx.rotate((rotationAngle * Math.PI) / 180);
-
             const contrast = contrastSlider.value / 100;
             const brightness = brightnessSlider.value / 100;
-
-            ctx.filter = `contrast(${contrast}) brightness(${brightness})`;
-            ctx.drawImage(loadedImage, -loadedImage.width / 2, -loadedImage.height / 2);
+            // Apply grayscale in the canvas pipeline; do not loop over every pixel on
+            // the main thread (that caused visible freezes on large images).
+            ctx.filter = `grayscale(${grayscaleToggle.checked ? 1 : 0}) contrast(${contrast}) brightness(${brightness})`;
+            ctx.drawImage(loadedImage, -sourceWidth / 2, -sourceHeight / 2, sourceWidth, sourceHeight);
             ctx.restore();
-
-            if (grayscaleToggle.checked) {
-                const imgData = ctx.getImageData(0, 0, previewCanvas.width, previewCanvas.height);
-                const data = imgData.data;
-                for (let i = 0; i < data.length; i += 4) {
-                    const avg = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-                    data[i]     = avg;
-                    data[i + 1] = avg;
-                    data[i + 2] = avg;
-                }
-                ctx.putImageData(imgData, 0, 0);
-            }
         }
 
         contrastSlider.addEventListener('input', applyFiltersAndPreview);
@@ -385,26 +387,29 @@
 
         function initializeOcrLanguageSelector() {
             if (!ocrLanguageSelect) return;
+            const autoOption = document.createElement('option');
+            autoOption.value = 'auto';
+            autoOption.textContent = '✨ Auto-detect language (recommended)';
+            ocrLanguageSelect.appendChild(autoOption);
             OCR_LANGUAGE_OPTIONS.forEach(([code, name]) => {
                 const option = document.createElement('option');
                 option.value = code;
                 option.textContent = name + ' (' + code + ')';
                 ocrLanguageSelect.appendChild(option);
             });
-            let savedLanguages = [];
-            try { savedLanguages = (localStorage.getItem('app_ocr_languages') || 'eng').split('+').filter(code => OCR_LANGUAGE_OPTIONS.some(item => item[0] === code)); }
-            catch (error) { savedLanguages = ['eng']; }
-            selectedOcrLanguages = [...new Set(savedLanguages)].slice(0, 3);
-            if (!selectedOcrLanguages.length) selectedOcrLanguages = ['eng'];
+            let saved = '';
+            try { saved = localStorage.getItem('app_ocr_languages') || ''; } catch (error) { saved = ''; }
+            // Older versions stored English as the implicit default. Upgrade that
+            // implicit choice to Auto-detect; explicit non-English choices are retained.
+            const savedCodes = saved.split('+').filter(code => OCR_LANGUAGE_OPTIONS.some(item => item[0] === code));
+            selectedOcrLanguages = !saved || saved === 'eng' || !savedCodes.length ? ['auto'] : [...new Set(savedCodes)].slice(0, 3);
             Array.from(ocrLanguageSelect.options).forEach(option => { option.selected = selectedOcrLanguages.includes(option.value); });
             ocrLanguageSelect.addEventListener('change', () => {
                 let selected = Array.from(ocrLanguageSelect.selectedOptions).map(option => option.value);
-                if (selected.length > 3) {
-                    selected = selected.slice(0, 3);
-                    showToast('Select up to three OCR languages per scan to keep processing responsive.', 'warning', 'Language limit');
-                }
-                if (!selected.length) selected = ['eng'];
-                selectedOcrLanguages = [...new Set(selected)];
+                if (selected.includes('auto')) selected = ['auto'];
+                else selected = [...new Set(selected.filter(code => code !== 'auto'))].slice(0, 3);
+                if (!selected.length) selected = ['auto'];
+                selectedOcrLanguages = selected;
                 Array.from(ocrLanguageSelect.options).forEach(option => { option.selected = selectedOcrLanguages.includes(option.value); });
                 try { localStorage.setItem('app_ocr_languages', selectedOcrLanguages.join('+')); } catch (error) { /* Storage is optional. */ }
                 updateOcrLanguageSummary();
@@ -415,6 +420,10 @@
         function updateOcrLanguageSummary() {
             const summary = document.getElementById('ocrLanguageSummary');
             if (!summary) return;
+            if (selectedOcrLanguages.includes('auto')) {
+                summary.textContent = 'Automatic detection enabled';
+                return;
+            }
             const names = selectedOcrLanguages.map(code => OCR_LANGUAGE_OPTIONS.find(item => item[0] === code)?.[1] || code);
             summary.textContent = names.join(' + ') + ' selected';
         }
@@ -422,27 +431,33 @@
         initializeOcrLanguageSelector();
 
         btnProcess.addEventListener('click', async () => {
-            if (!previewCanvas) return;
+            if (!previewCanvas || !previewCanvas.width || !previewCanvas.height) {
+                showToast('Upload or capture an image before starting OCR.', 'error', 'No image selected');
+                return;
+            }
+            if (typeof Tesseract === 'undefined') {
+                showToast('The OCR engine could not be loaded. Check your connection and reload the page.', 'error', 'OCR engine unavailable');
+                return;
+            }
 
             btnProcess.disabled = true;
             btnProcess.classList.add('opacity-50', 'cursor-not-allowed');
             progressCard.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            progressText.innerText = '0%';
+            resetTable();
 
             try {
-                await processTableWithTesseract();
-
+                const processed = await processTableWithTesseract();
+                if (!processed) return;
                 document.getElementById('btnToggleSplitView').classList.remove('hidden');
                 saveCurrentToHistory();
-                showToast("Document processed successfully.", "success", "Processing complete");
-
-                // Send event to GA dynamically
-                if (typeof gtag === 'function') {
-                    gtag('event', 'document_scanned', { engine: 'tesseract' });
-                }
-
+                showToast('Document processed successfully. Review the extracted cells before exporting.', 'success', 'Processing complete');
+                if (typeof gtag === 'function') gtag('event', 'document_scanned', { engine: 'tesseract' });
             } catch (err) {
-                console.error("Processing Error:", err);
-                showToast("An error occurred while analyzing the image. Try again with improved contrast.", "error", "OCR failed");
+                console.error('Processing Error:', err);
+                const detail = err && err.message ? err.message : 'Unknown OCR error';
+                showToast('OCR could not complete: ' + detail + '. Check the connection for the required language data, then retry.', 'error', 'OCR failed');
             } finally {
                 btnProcess.disabled = false;
                 btnProcess.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -450,89 +465,184 @@
             }
         });
 
-        async function processTableWithTesseract() {
-            const canvasData = previewCanvas.toDataURL('image/png');
-            const languages = selectedOcrLanguages.length ? selectedOcrLanguages : ['eng'];
-            const languageLabel = languages.map(code => OCR_LANGUAGE_OPTIONS.find(item => item[0] === code)?.[1] || code).join(' + ');
-            let worker;
-            try {
-                worker = await Tesseract.createWorker(languages.join('+'), 1, {
+        function updateOcrProgress(message) {
+            statusText.textContent = message;
+        }
+
+        function languageForDetectedScript(script) {
+            const normalized = String(script || '').toLowerCase();
+            const scriptMap = [
+                [/arabic/, 'ara'], [/cyrillic/, 'rus'], [/han|chinese/, 'chi_sim'],
+                [/japanese|hiragana|katakana/, 'jpn'], [/korean|hangul/, 'kor'],
+                [/hebrew/, 'heb'], [/greek/, 'ell'], [/devanagari/, 'hin'],
+                [/bengali/, 'ben'], [/tamil/, 'tam'], [/telugu/, 'tel'],
+                [/malayalam/, 'mal'], [/gujarati/, 'guj'], [/gurmukhi/, 'pan'],
+                [/oriya|odia/, 'ori'], [/thai/, 'tha'], [/lao/, 'lao'],
+                [/georgian/, 'kat'], [/ethiopic/, 'amh']
+            ];
+            const match = scriptMap.find(([pattern]) => pattern.test(normalized));
+            return match ? match[1] : 'eng';
+        }
+
+        async function detectOcrLanguage(imageData) {
+            if (!activeOcrDetector) {
+                activeOcrDetector = await Tesseract.createWorker('eng', 1, { legacyCore: true, legacyLang: true,
                     logger: m => {
-                        if (m.status === 'recognizing text') {
-                            const pct = Math.round(m.progress * 100);
-                            progressBar.style.width = pct + '%';
-                            progressText.innerText = pct + '%';
-                            statusText.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-cyan-500"></i> Recognizing ${languageLabel} locally with Tesseract...`;
-                            safeCreateIcons();
+                        if (m.status === 'loading language traineddata' || m.status === 'initializing api') {
+                            updateOcrProgress('Preparing automatic language detection…');
                         }
                     }
                 });
-                const ret = await worker.recognize(canvasData);
-                parseSpatialLayoutToGrid(ret.data);
-            } finally {
-                if (worker) await worker.terminate();
             }
+            try {
+                const result = await activeOcrDetector.detect(imageData);
+                const script = result && result.data && result.data.script ? result.data.script : '';
+                const confidence = Number(result && result.data && result.data.script_confidence);
+                const language = languageForDetectedScript(script);
+                // OSD identifies the writing system, not the exact natural language.
+                // Latin-script text defaults to English; users can select an exact pack below.
+                return { language, script, confidence };
+            } catch (error) {
+                console.warn('OCR script detection unavailable; falling back to English.', error);
+                return { language: 'eng', script: 'unknown', confidence: 0, fallbackLanguages: ['eng', 'ara'] };
+            }
+        }
+
+        async function getOcrWorker(languages) {
+            const languageKey = languages.join('+');
+            if (activeOcrWorker && activeOcrWorkerLanguages === languageKey) return activeOcrWorker;
+            if (activeOcrWorker) {
+                await activeOcrWorker.terminate();
+                activeOcrWorker = null;
+                activeOcrWorkerLanguages = '';
+            }
+            activeOcrWorker = await Tesseract.createWorker(languageKey, 1, {
+                logger: m => {
+                    if (m.status === 'loading language traineddata' || m.status === 'initializing api') {
+                        updateOcrProgress('Loading ' + languageKey.replace(/\+/g, ' + ') + ' OCR data…');
+                    }
+                    if (m.status === 'recognizing text') {
+                        const pct = Math.round(m.progress * 100);
+                        progressBar.style.width = pct + '%';
+                        progressText.innerText = pct + '%';
+                        updateOcrProgress('Recognizing text locally… ' + pct + '%');
+                    }
+                }
+            });
+            activeOcrWorkerLanguages = languageKey;
+            return activeOcrWorker;
+        }
+
+        async function processTableWithTesseract() {
+            const canvasData = previewCanvas.toDataURL('image/png');
+            let languages;
+            if (selectedOcrLanguages.includes('auto')) {
+                updateOcrProgress('Detecting the document writing system…');
+                const detected = await detectOcrLanguage(canvasData);
+                detectedOcrScript = detected.script || '';
+                languages = detected.fallbackLanguages || [detected.language];
+                const detectedName = detected.fallbackLanguages ? 'English + Arabic fallback' : (OCR_LANGUAGE_OPTIONS.find(item => item[0] === detected.language)?.[1] || 'English');
+                updateOcrProgress('Detected ' + (detected.script || 'unknown') + ' script · using ' + detectedName + ' OCR…');
+                const summary = document.getElementById('ocrLanguageSummary');
+                if (summary) summary.textContent = 'Detected: ' + detectedName;
+            } else {
+                languages = selectedOcrLanguages.filter(code => OCR_LANGUAGE_OPTIONS.some(item => item[0] === code)).slice(0, 3);
+            }
+            if (!languages.length) languages = ['eng'];
+            const worker = await getOcrWorker(languages);
+            const result = await worker.recognize(canvasData, {}, { blocks: true });
+            return parseSpatialLayoutToGrid(result.data);
         }
 
         function parseSpatialLayoutToGrid(ocrData) {
-            const words = ocrData.words || [];
-
-            if (words.length === 0) {
-                showToast("No readable text was detected. Try a clearer image.", "error", "Notice");
-                return;
+            const blockWords = (ocrData.blocks || []).flatMap(block => (block.paragraphs || []).flatMap(paragraph => (paragraph.lines || []).flatMap(line => line.words || [])));
+            const words = (ocrData.words && ocrData.words.length ? ocrData.words : blockWords).filter(word => word && word.text && word.text.trim() && word.bbox);
+            if (!words.length) {
+                const fallbackLines = (ocrData.lines || []).map(line => String(line.text || '').trim()).filter(Boolean);
+                if (!fallbackLines.length) {
+                    showToast('No readable text was detected. Try a sharper image, better lighting, or a higher contrast setting.', 'error', 'No text detected');
+                    return false;
+                }
+                extractedGridData = fallbackLines.map(line => [line]);
+                renderTableUI();
+                return true;
             }
 
-            const lines = [];
-            const yTolerance = 18;
-
+            const heights = words.map(word => Math.max(1, word.bbox.y1 - word.bbox.y0)).sort((a, b) => a - b);
+            const medianHeight = heights[Math.floor(heights.length / 2)] || 16;
+            const rowTolerance = Math.max(8, medianHeight * 0.65);
+            const rows = [];
+            words.sort((a, b) => ((a.bbox.y0 + a.bbox.y1) / 2) - ((b.bbox.y0 + b.bbox.y1) / 2) || a.bbox.x0 - b.bbox.x0);
             words.forEach(word => {
-                if (!word.text || !word.text.trim()) return;
                 const centerY = (word.bbox.y0 + word.bbox.y1) / 2;
-                let line = lines.find(l => Math.abs(l.centerY - centerY) < yTolerance);
-
-                if (!line) {
-                    line = { centerY, words: [] };
-                    lines.push(line);
+                let row = rows.find(item => Math.abs(item.centerY - centerY) <= rowTolerance);
+                if (!row) {
+                    row = { centerY, words: [] };
+                    rows.push(row);
                 }
-                line.words.push(word);
+                row.words.push(word);
+                row.centerY = row.words.reduce((sum, item) => sum + (item.bbox.y0 + item.bbox.y1) / 2, 0) / row.words.length;
             });
+            rows.sort((a, b) => a.centerY - b.centerY);
 
-            lines.sort((a, b) => a.centerY - b.centerY);
-            const isRightToLeft = selectedOcrLanguages.some(code => OCR_RTL_LANGUAGES.has(code));
-            lines.forEach(l => l.words.sort((a, b) => isRightToLeft ? b.bbox.x1 - a.bbox.x1 : a.bbox.x0 - b.bbox.x0));
-
-            const xRanges = [];
-            const xGapThreshold = 30;
-
-            lines.forEach(l => {
-                l.words.forEach(w => {
-                    let range = xRanges.find(r => !(w.bbox.x1 < r.x0 - xGapThreshold || w.bbox.x0 > r.x1 + xGapThreshold));
-                    if (range) {
-                        range.x0 = Math.min(range.x0, w.bbox.x0);
-                        range.x1 = Math.max(range.x1, w.bbox.x1);
+            const isRightToLeft = selectedOcrLanguages.includes('ara') ||
+                selectedOcrLanguages.some(code => OCR_RTL_LANGUAGES.has(code)) ||
+                (selectedOcrLanguages.includes('auto') && /arabic|hebrew/i.test(String(detectedOcrScript || ocrData.script || '')));
+            const cellGap = Math.max(18, medianHeight * 1.35);
+            const rowCells = rows.map(row => {
+                const ordered = row.words.slice().sort((a, b) => isRightToLeft ? b.bbox.x1 - a.bbox.x1 : a.bbox.x0 - b.bbox.x0);
+                const cells = [];
+                ordered.forEach(word => {
+                    const previous = cells[cells.length - 1];
+                    const gap = previous
+                        ? (isRightToLeft ? previous.edge - word.bbox.x1 : word.bbox.x0 - previous.edge)
+                        : Infinity;
+                    if (!previous || gap > cellGap) {
+                        cells.push({ text: word.text.trim(), edge: isRightToLeft ? word.bbox.x0 : word.bbox.x1, x0: word.bbox.x0, x1: word.bbox.x1 });
                     } else {
-                        xRanges.push({ x0: w.bbox.x0, x1: w.bbox.x1 });
+                        previous.text += ' ' + word.text.trim();
+                        previous.edge = isRightToLeft ? word.bbox.x0 : word.bbox.x1;
+                        previous.x0 = Math.min(previous.x0, word.bbox.x0);
+                        previous.x1 = Math.max(previous.x1, word.bbox.x1);
                     }
                 });
+                return cells;
+            }).filter(cells => cells.length);
+
+            if (!rowCells.length) return false;
+            const anchors = rowCells.flatMap(cells => cells.map(cell => isRightToLeft ? cell.x1 : cell.x0)).sort((a, b) => a - b);
+            const anchorTolerance = Math.max(24, medianHeight * 2.2, previewCanvas.width * 0.012);
+            const columns = [];
+            anchors.forEach(anchor => {
+                let column = columns.find(item => Math.abs(item.center - anchor) <= anchorTolerance);
+                if (!column) {
+                    column = { center: anchor, count: 0, total: 0 };
+                    columns.push(column);
+                }
+                column.total += anchor;
+                column.count++;
+                column.center = column.total / column.count;
             });
+            columns.sort((a, b) => isRightToLeft ? b.center - a.center : a.center - b.center);
 
-            xRanges.sort((a, b) => isRightToLeft ? b.x1 - a.x1 : a.x0 - b.x0);
-
-            extractedGridData = lines.map(line => {
-                const row = new Array(xRanges.length).fill('');
-                line.words.forEach(w => {
-                    const wordCenterX = (w.bbox.x0 + w.bbox.x1) / 2;
-                    let colIdx = xRanges.findIndex(r => wordCenterX >= r.x0 - 15 && wordCenterX <= r.x1 + 15);
-                    if (colIdx === -1) colIdx = 0;
-                    row[colIdx] = (row[colIdx] + ' ' + w.text).trim();
+            extractedGridData = rowCells.map(cells => {
+                const row = new Array(columns.length).fill('');
+                cells.forEach(cell => {
+                    const anchor = isRightToLeft ? cell.x1 : cell.x0;
+                    let index = 0, bestDistance = Infinity;
+                    columns.forEach((column, columnIndex) => {
+                        const distance = Math.abs(column.center - anchor);
+                        if (distance < bestDistance) { bestDistance = distance; index = columnIndex; }
+                    });
+                    row[index] = row[index] ? row[index] + ' ' + cell.text : cell.text;
                 });
                 return row;
             });
-
             renderTableUI();
+            return true;
         }
 
-        function renderTableUI() {
+                function renderTableUI() {
             if (extractedGridData.length === 0) return resetTable();
 
             emptyState.classList.add('hidden');
@@ -826,6 +936,10 @@
 
         document.getElementById('btnExportExcel').addEventListener('click', () => {
             if (extractedGridData.length === 0) return;
+            if (typeof XLSX === 'undefined') {
+                showToast('The Excel export library did not load. Reload the page and try again.', 'error', 'Export unavailable');
+                return;
+            }
 
             const ws = XLSX.utils.aoa_to_sheet(extractedGridData);
             if (!ws['!dir']) ws['!dir'] = 'rtl';
