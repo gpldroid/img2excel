@@ -545,31 +545,58 @@
             }
         }
 
+        async function terminateOcrWorker(worker) {
+            if (!worker || typeof worker.terminate !== 'function') return;
+            try { await worker.terminate(); } catch (error) {
+                console.warn('Unable to terminate an OCR worker cleanly.', error);
+            }
+        }
+
         async function getOcrWorker(languages) {
             const languageKey = languages.join('+');
             if (activeOcrWorker && activeOcrWorkerLanguages === languageKey) return activeOcrWorker;
             if (activeOcrWorker) {
-                await activeOcrWorker.terminate();
+                const previousWorker = activeOcrWorker;
                 activeOcrWorker = null;
                 activeOcrWorkerLanguages = '';
+                await terminateOcrWorker(previousWorker);
             }
-            activeOcrWorker = await Tesseract.createWorker(languageKey, 1, {
-                logger: m => {
-                    if (m.status === 'loading language traineddata' || m.status === 'initializing api') {
-                        updateOcrProgress('Loading ' + languageKey.replace(/\+/g, ' + ') + ' OCR data…');
-                        progressBar.style.width = '12%';
-                        progressText.innerText = 'Loading…';
+
+            updateOcrProgress('Starting the OCR engine for ' + languageKey.replace(/\\+/g, ' + ') + '…');
+            progressBar.style.width = '12%';
+            progressText.innerText = 'Loading…';
+
+            let workerCreation;
+            try {
+                workerCreation = Tesseract.createWorker(languageKey, 1, {
+                    logger: m => {
+                        if (m.status === 'loading language traineddata' || m.status === 'initializing api' || m.status === 'loading tesseract core') {
+                            updateOcrProgress('Loading ' + languageKey.replace(/\\+/g, ' + ') + ' OCR resources…');
+                            progressBar.style.width = '12%';
+                            progressText.innerText = 'Loading…';
+                        }
+                        if (m.status === 'recognizing text') {
+                            const pct = Math.max(0, Math.min(99, Math.round(m.progress * 100)));
+                            progressBar.style.width = pct + '%';
+                            progressText.innerText = pct + '%';
+                            updateOcrProgress('Recognizing text locally… ' + pct + '%');
+                        }
                     }
-                    if (m.status === 'recognizing text') {
-                        const pct = Math.round(m.progress * 100);
-                        progressBar.style.width = pct + '%';
-                        progressText.innerText = pct + '%';
-                        updateOcrProgress('Recognizing text locally… ' + pct + '%');
-                    }
+                });
+
+                try {
+                    activeOcrWorker = await withOcrTimeout(workerCreation, 90000, 'OCR engine initialization');
+                    activeOcrWorkerLanguages = languageKey;
+                    return activeOcrWorker;
+                } catch (error) {
+                    workerCreation.then(worker => terminateOcrWorker(worker)).catch(() => {});
+                    throw error;
                 }
-            });
-            activeOcrWorkerLanguages = languageKey;
-            return activeOcrWorker;
+            } catch (error) {
+                activeOcrWorker = null;
+                activeOcrWorkerLanguages = '';
+                throw error;
+            }
         }
 
         async function processTableWithTesseract() {
@@ -591,8 +618,25 @@
             }
             if (!languages.length) languages = ['eng'];
             const worker = await getOcrWorker(languages);
-            const result = await worker.recognize(canvasData, {}, { blocks: true });
-            return parseSpatialLayoutToGrid(result.data);
+            updateOcrProgress('Recognizing text locally…');
+            progressBar.style.width = '15%';
+            progressText.innerText = 'Starting…';
+
+            let recognition;
+            try {
+                recognition = await withOcrTimeout(worker.recognize(canvasData, {}, { blocks: true }), 120000, 'Text recognition');
+            } catch (error) {
+                if (activeOcrWorker === worker) {
+                    activeOcrWorker = null;
+                    activeOcrWorkerLanguages = '';
+                }
+                await terminateOcrWorker(worker);
+                throw error;
+            }
+            progressBar.style.width = '100%';
+            progressText.innerText = '100%';
+            updateOcrProgress('Text recognition complete. Preparing the editable table…');
+            return parseSpatialLayoutToGrid(recognition.data);
         }
 
         function parseSpatialLayoutToGrid(ocrData) {
