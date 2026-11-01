@@ -2,6 +2,7 @@
 const mount=document.getElementById('site-footer');if(!mount)return;
 mount.outerHTML='<footer class="site-footer"><div class="site-footer__inner">'+
 '<div class="site-footer__intro"><a class="site-footer__brand" href="/" aria-label="ProTools home"><img src="/assets/images/protools-mark.svg" alt="" width="38" height="38"><span>ProTools</span></a><p>Practical browser-based tools for turning information in images into editable spreadsheet data. Convert smarter. Work faster.</p></div>'+
+'<div class="site-footer__ad" aria-label="Advertisement"><ins class="adsbygoogle" style="display:inline-block;width:250px;height:125px" data-ad-client="ca-pub-6996931662051674" data-ad-slot="1190274186"></ins></div>'+
 '<div class="site-footer__columns">'+
 '<section class="site-footer__column"><h2>Workspace</h2><a href="/#main-content">Image to Excel Converter</a><a href="/pages/ocr-table-extraction.html">OCR table extraction</a><a href="/pages/ocr-accuracy-guide.html">Improve OCR accuracy</a></section>'+
 '<section class="site-footer__column"><h2>Learn</h2><a href="/pages/image-to-excel-guide.html">Conversion guide</a><a href="/pages/ocr-table-extraction.html">How OCR works</a><a href="/pages/advertising.html">Advertising information</a></section>'+
