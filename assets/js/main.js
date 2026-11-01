@@ -50,18 +50,16 @@
                 html.classList.remove('dark');
                 html.classList.add('light');
                 if (themeIcon) {
-                    themeIcon.setAttribute('data-lucide', 'moon');
-                    themeIcon.className = 'w-4 h-4 text-indigo-600';
+                    themeIcon.className = 'fa-solid fa-moon';
                 }
-                if (themeLabel) themeLabel.innerText = 'الوضع المظلم';
+                if (themeLabel) themeLabel.innerText = 'Switch to dark mode';
             } else {
                 html.classList.remove('light');
                 html.classList.add('dark');
                 if (themeIcon) {
-                    themeIcon.setAttribute('data-lucide', 'sun');
-                    themeIcon.className = 'w-4 h-4 text-amber-500';
+                    themeIcon.className = 'fa-solid fa-sun';
                 }
-                if (themeLabel) themeLabel.innerText = 'الوضع المضيء';
+                if (themeLabel) themeLabel.innerText = 'Switch to light mode';
             }
             safeCreateIcons();
         }
@@ -101,7 +99,7 @@
         function handleContactSubmit(e) {
             e.preventDefault();
             const name = document.getElementById('contactName').value;
-            showToast(`شكراً لك يا ${name}! تم إرسال رسالتك بنجاح وسيتم الرد عليك في أقرب وقت.`, "success", "تم الإرسال");
+            showToast(`Thanks, ${name}! Your message has been sent. We will get back to you soon.`, "success", "Message sent");
             document.getElementById('contactForm').reset();
             setTimeout(() => {
                 closeLegalModal();
@@ -124,11 +122,11 @@
 
             initAnalytics();
             closeSettingsModal();
-            showToast("تم حفظ وتحديث إعدادات Google Analytics بنجاح!", "success", "تم الربط");
+            showToast("Google Analytics settings saved successfully.", "success", "Connected");
         }
 
         // App Core State
-        let currentEngine = 'gemini';
+        let currentEngine = 'tesseract';
         let stream = null;
         let loadedImage = null;
         let rotationAngle = 0;
@@ -172,7 +170,7 @@
         const rowCountText = document.getElementById('rowCountText');
         const colCountText = document.getElementById('colCountText');
 
-        function showToast(message, type = 'info', title = 'إشعار') {
+        function showToast(message, type = 'info', title = 'Notice') {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toastMsg');
             const toastTitle = document.getElementById('toastTitle');
@@ -200,26 +198,6 @@
             }, 4000);
         }
 
-        function setEngine(engine) {
-            currentEngine = engine;
-            const engineGemini = document.getElementById('engineGemini');
-            const engineTesseract = document.getElementById('engineTesseract');
-            const currentEngineLabel = document.getElementById('currentEngineLabel');
-            const engineDescription = document.getElementById('engineDescription');
-
-            if (engine === 'gemini') {
-                engineGemini.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md shadow-emerald-600/30";
-                engineTesseract.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all";
-                currentEngineLabel.innerText = "Gemini Vision AI + الضغط الذكي";
-                engineDescription.innerText = "يتم استخراج الجداول المعقدة والنصوص بآلية الضغط المسبق لتحقيق أعلى دقة وأسرع استجابة.";
-            } else {
-                engineTesseract.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md shadow-emerald-600/30";
-                engineGemini.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all";
-                currentEngineLabel.innerText = "المحرك المحلي (Tesseract OCR)";
-                engineDescription.innerText = "معالجة مباشرة على جهازك دون الحاجة لشبكة الإنترنت.";
-            }
-        }
-
         async function startCamera() {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
@@ -239,11 +217,11 @@
                 btnRetake.classList.add('hidden');
                 btnProcess.classList.add('hidden');
                 
-                captureStatus.innerText = 'الكاميرا نشطة';
+                captureStatus.innerText = 'Camera is active';
                 captureStatus.className = 'text-[11px] bg-emerald-500/20 text-emerald-500 px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/30';
             } catch (err) {
                 console.error("Camera Access Error:", err);
-                showToast("تعذر الوصول للكاميرا. يرجى التأكد من إعطاء الصلاحية أو رفع صورة.", "error", "خطأ بالكاميرا");
+                showToast("Unable to access the camera. Check browser permissions or upload an image.", "error", "Camera error");
             }
         }
 
@@ -282,7 +260,7 @@
             imageEditToolbar.classList.remove('hidden');
             previewCanvas.classList.remove('hidden');
             
-            captureStatus.innerText = 'تم الالتقاط';
+            captureStatus.innerText = 'Image captured';
             captureStatus.className = 'text-[11px] bg-indigo-500/20 text-indigo-500 px-2.5 py-0.5 rounded-full font-bold border border-indigo-500/30';
         });
 
@@ -312,7 +290,7 @@
                         btnProcess.classList.remove('hidden');
 
                         stopCamera();
-                        captureStatus.innerText = 'تم تحضير الملف';
+                        captureStatus.innerText = 'Image prepared';
                         captureStatus.className = 'text-[11px] bg-indigo-500/20 text-indigo-500 px-2.5 py-0.5 rounded-full font-bold border border-indigo-500/30';
                     };
                     img.src = event.target.result;
@@ -420,124 +398,26 @@
             progressCard.classList.remove('hidden');
 
             try {
-                if (currentEngine === 'gemini') {
-                    await processTableWithGeminiAI();
-                } else {
-                    await processTableWithTesseract();
-                }
+                await processTableWithTesseract();
 
                 document.getElementById('btnToggleSplitView').classList.remove('hidden');
                 saveCurrentToHistory();
-                showToast("تم تحويل المستند بنجاح بدقة وسرعة فائقة!", "success", "نجاح المعالجة");
+                showToast("Document processed successfully.", "success", "Processing complete");
 
                 // Send event to GA dynamically
                 if (typeof gtag === 'function') {
-                    gtag('event', 'document_scanned', { engine: currentEngine });
+                    gtag('event', 'document_scanned', { engine: 'tesseract' });
                 }
 
             } catch (err) {
                 console.error("Processing Error:", err);
-                showToast("حدث خطأ أثناء تحليل المستند. يرجى المحاولة مجدداً مع تباين أعلى.", "error", "فشل التحليل");
+                showToast("An error occurred while analyzing the image. Try again with improved contrast.", "error", "OCR failed");
             } finally {
                 btnProcess.disabled = false;
                 btnProcess.classList.remove('opacity-50', 'cursor-not-allowed');
                 progressCard.classList.add('hidden');
             }
         });
-
-        async function processTableWithGeminiAI() {
-            statusText.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 animate-spin text-cyan-500"></i> جاري معالجة المستند وتنسيق الجداول عبر Gemini Vision...`;
-            safeCreateIcons();
-            
-            progressBar.style.width = '25%';
-            progressText.innerText = '25%';
-
-            const compressedBase64 = getCompressedBase64Image(1500);
-
-            const preset = docPresetSelect.value;
-            let presetInstruction = "";
-            if (preset === "receipt") {
-                presetInstruction = "هذا المستند عبارة عن فاتورة شراء/إيصال مالي. ركز على استخراج أعمدة: اسم الصنف/الخدمة، الكمية، السعر الفردي، والإجمالي، مع إضافة حقول الضريبة والإجمالي النهائي إن وجدت.";
-            } else if (preset === "attendance") {
-                presetInstruction = "هذا المستند عبارة عن كشف حضور أو بيانات موظفين. استخرج أسماء الأشخاص، الأرقام التعريفية، حالات الحضور/الغياب، الملاحظات.";
-            } else if (preset === "financial") {
-                presetInstruction = "هذا المستند تقرير مالي/ميزانية. استخرج الأوصاف المالية، الفترات، المبالغ، والعملات إن وجدت بشكل دقيق جداً.";
-            } else {
-                presetInstruction = "استخرج جدول البيانات بالكامل مع المحافظة على التسلسل الدقيق للصفوف والأعمدة.";
-            }
-
-            const apiKey = ""; // API Key injected automatically in environment
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-            const systemPrompt = `أنت خبير محترف في تحليل الجداول والمستندات الورقية والمالية.
-مهمتك قراءة الجدول في الصورة وتنسيقه كـ JSON نقي فقط وفق النمط المحدد بدون أي شرح أو كلام إضافي:
-{
-  "headers": ["اسم العمود 1", "اسم العمود 2", ...],
-  "rows": [
-    ["قيمة 1", "قيمة 2", ...],
-    ["قيمة 3", "قيمة 4", ...]
-  ]
-}
-تعليمات هامة:
-1. حافظ على توجيه النصوص وتطابق الحقول.
-2. ${presetInstruction}
-3. لا تضع رموز markdown مثل \`\`\`json في البداية والنهاية، أرجع كائن JSON فقط.`;
-
-            const payload = {
-                contents: [
-                    {
-                        role: "user",
-                        parts: [
-                            { text: "قم بتحليل وتقسيم هذا الجدول بدقة متناهية إلى شبكة JSON متناسقة." },
-                            {
-                                inlineData: {
-                                    mimeType: "image/jpeg",
-                                    data: compressedBase64
-                                }
-                            }
-                        ]
-                    }
-                ],
-                generationConfig: {
-                    responseMimeType: "application/json"
-                },
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                }
-            };
-
-            progressBar.style.width = '65%';
-            progressText.innerText = '65%';
-
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) throw new Error(`Gemini API Error: ${response.status}`);
-
-            const result = await response.json();
-            progressBar.style.width = '90%';
-            progressText.innerText = '90%';
-
-            const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!jsonText) throw new Error("استجابة غير صالحة من AI");
-
-            const parsed = JSON.parse(jsonText);
-            
-            extractedGridData = [];
-            if (parsed.headers && parsed.headers.length > 0) {
-                extractedGridData.push(parsed.headers);
-            }
-            if (parsed.rows && parsed.rows.length > 0) {
-                parsed.rows.forEach(r => extractedGridData.push(r));
-            }
-
-            progressBar.style.width = '100%';
-            progressText.innerText = '100%';
-            renderTableUI();
-        }
 
         async function processTableWithTesseract() {
             const canvasData = previewCanvas.toDataURL('image/png');
@@ -548,7 +428,7 @@
                         const pct = Math.round(m.progress * 100);
                         progressBar.style.width = pct + '%';
                         progressText.innerText = pct + '%';
-                        statusText.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-cyan-500"></i> جاري التعرف المحلي (Tesseract)...`;
+                        statusText.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-cyan-500"></i> Recognizing text locally with Tesseract...`;
                         safeCreateIcons();
                     }
                 }
@@ -564,7 +444,7 @@
             const words = ocrData.words || [];
 
             if (words.length === 0) {
-                showToast("لم يتم التعرف على أي نصوص واضحة.", "error", "تنبيه");
+                showToast("No readable text was detected. Try a clearer image.", "error", "Notice");
                 return;
             }
 
@@ -643,8 +523,8 @@
                 th.className = 'p-2.5 border-b border-l font-bold min-w-[120px] relative group';
                 th.innerHTML = `
                     <div class="flex items-center justify-between px-1">
-                        <span class="text-cyan-500 font-extrabold">عمود ${c + 1}</span>
-                        <button onclick="deleteColumn(${c})" class="text-rose-500 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity p-0.5" title="حذف العمود">
+                        <span class="text-cyan-500 font-extrabold">Column ${c + 1}</span>
+                        <button onclick="deleteColumn(${c})" class="text-rose-500 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity p-0.5" title="Delete column">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                         </button>
                     </div>
@@ -662,7 +542,7 @@
                 tdIndex.className = 'p-2 border-b border-l text-center text-xs font-mono font-medium';
                 tdIndex.innerHTML = `
                     <span class="group-hover:hidden">${rIdx + 1}</span>
-                    <button onclick="deleteRow(${rIdx})" class="hidden group-hover:inline-flex text-rose-500 hover:text-rose-600" title="حذف الصف">
+                    <button onclick="deleteRow(${rIdx})" class="hidden group-hover:inline-flex text-rose-500 hover:text-rose-600" title="Delete row">
                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                     </button>
                 `;
@@ -688,8 +568,8 @@
                 dataTableBody.appendChild(tr);
             });
 
-            rowCountText.innerText = `عدد الصفوف: ${extractedGridData.length}`;
-            colCountText.innerText = `عدد الأعمدة: ${numCols}`;
+            rowCountText.innerText = `Rows: ${extractedGridData.length}`;
+            colCountText.innerText = `Columns: ${numCols}`;
             calculateTableStats();
             safeCreateIcons();
         }
@@ -711,7 +591,7 @@
                 }
             }
             renderTableUI();
-            showToast("تم تحويل جميع الأرقام إلى أرقام إنجليزية قياسية!", "success", "توحيد الأرقام");
+            showToast("All digits were converted to standard Western digits.", "success", "Normalize digits");
         }
 
         function cleanEmptyRowsCols() {
@@ -735,7 +615,7 @@
             }
 
             renderTableUI();
-            showToast("تم تنظيف الجدول وحذف الحقول الفارغة بنجاح!", "success", "تنظيف تلقائي");
+            showToast("Empty rows and columns were removed.", "success", "Table cleaned");
         }
 
         function calculateTableStats() {
@@ -755,9 +635,9 @@
                 });
             });
 
-            document.getElementById('statSum').innerText = `المجموع: ${totalSum.toLocaleString('ar-EG')}`;
-            document.getElementById('statAvg').innerText = `المتوسط: ${(numericCount ? (totalSum / numericCount) : 0).toFixed(2)}`;
-            document.getElementById('statCount').innerText = `الخلايا: ${totalCells}`;
+            document.getElementById('statSum').innerText = `Sum: ${totalSum.toLocaleString('ar-EG')}`;
+            document.getElementById('statAvg').innerText = `Average: ${(numericCount ? (totalSum / numericCount) : 0).toFixed(2)}`;
+            document.getElementById('statCount').innerText = `Cells: ${totalCells}`;
         }
 
         function filterTableRows() {
@@ -780,8 +660,8 @@
             tableActions.classList.add('hidden');
             tableAnalyticsBar.classList.add('hidden');
             emptyState.classList.remove('hidden');
-            rowCountText.innerText = 'عدد الصفوف: 0';
-            colCountText.innerText = 'عدد الأعمدة: 0';
+            rowCountText.innerText = 'Rows: 0';
+            colCountText.innerText = 'Columns: 0';
         }
 
         document.getElementById('btnAddRow').addEventListener('click', () => {
@@ -810,7 +690,7 @@
 
         window.deleteColumn = (cIdx) => {
             if (extractedGridData[0].length <= 1) {
-                showToast("لا يمكن حذف العمود الوحيد المتبقي.", "error", "تنبيه");
+                showToast("The last remaining column cannot be deleted.", "error", "Notice");
                 return;
             }
             extractedGridData.forEach(row => row.splice(cIdx, 1));
@@ -826,11 +706,11 @@
             if (isSplitView) {
                 leftColumn.className = "lg:col-span-6 flex flex-col gap-4 transition-all duration-300";
                 rightColumn.className = "lg:col-span-6 flex flex-col transition-all duration-300";
-                btnText.innerText = "إنهاء المقارنة";
+                btnText.innerText = "Close comparison";
             } else {
                 leftColumn.className = "lg:col-span-5 flex flex-col gap-4 transition-all duration-300";
                 rightColumn.className = "lg:col-span-7 flex flex-col transition-all duration-300";
-                btnText.innerText = "المقارنة الجانبية";
+                btnText.innerText = "Side-by-side comparison";
             }
         }
 
@@ -852,7 +732,7 @@
             document.getElementById('historyCount').innerText = scanHistory.length;
 
             if (scanHistory.length === 0) {
-                historyList.innerHTML = `<p class="text-slate-500 text-center py-8">لا يوجد مسوحات محفوظة بعد</p>`;
+                historyList.innerHTML = `<p class="text-slate-500 text-center py-8">No saved scans yet</p>`;
                 return;
             }
 
@@ -874,14 +754,14 @@
                 extractedGridData = JSON.parse(JSON.stringify(found.data));
                 renderTableUI();
                 toggleHistoryDrawer();
-                showToast("تم تحميل الجدول المحدد من السجل بنجاح!", "info", "استرجاع من السجل");
+                showToast("The selected table was restored from history.", "info", "Restored from history");
             }
         }
 
         function clearHistory() {
             scanHistory = [];
             updateHistoryUI();
-            showToast("تم تفريغ سجل المسوحات.", "info", "تم المسح");
+            showToast("Scan history cleared.", "info", "History cleared");
         }
 
         function toggleHistoryDrawer() {
@@ -901,9 +781,9 @@
             
             try {
                 document.execCommand('copy');
-                showToast("تم نسخ بيانات الجدول! يمكنك لصقها فوراً في برنامج Excel أو Google Sheets.", "success", "تم النسخ");
+                showToast("Table data copied. You can paste it into Excel or Google Sheets.", "success", "Copied");
             } catch (err) {
-                showToast("تعذر النسخ التلقائي.", "error", "خطأ");
+                showToast("Automatic copy failed.", "error", "Error");
             } finally {
                 document.body.removeChild(textarea);
             }
@@ -922,12 +802,12 @@
             ws['!cols'] = colWidths;
 
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "البيانات المستخرجة");
+            XLSX.utils.book_append_sheet(wb, ws, "Extracted data");
 
-            const fileName = `جدول_مستند_${new Date().toISOString().slice(0,10)}.xlsx`;
+            const fileName = `protools-table_${new Date().toISOString().slice(0,10)}.xlsx`;
             XLSX.writeFile(wb, fileName);
 
-            showToast("تم تصدير ملف الإكسل المنظم بنجاح!", "success", "تم التصدير");
+            showToast("The formatted Excel file was exported successfully.", "success", "Export complete");
 
             // Event to GA
             if (typeof gtag === 'function') {

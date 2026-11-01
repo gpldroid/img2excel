@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="light">
+<html lang="en" dir="ltr" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProTools – تحويل الصور إلى Excel وCSV باستخدام OCR</title>
+    <title>Image to Excel Converter Online | ProTools</title>
 
     <!-- Primary SEO -->
-    <meta name="description" content="حوّل الصور التي تحتوي على جداول وبيانات إلى ملفات Excel وCSV قابلة للتحرير باستخدام OCR. ارفع صورة، راجع البيانات المستخرجة، ثم صدّر الجدول.">
-    <meta name="keywords" content="Convert image to Excel, OCR to XLSX, online image table extractor, image to Excel converter, JPG to Excel, PNG to Excel, WebP to Excel, OCR table extractor, ProTools">
+    <meta name="description" content="Convert images of tables into editable Excel and CSV files with in-browser OCR. Upload or capture an image, review the extracted data, and export your spreadsheet.">
+    <meta name="keywords" content="image to Excel converter, convert image to Excel, JPG to Excel, PNG to Excel, OCR table extraction, image to XLSX, photo to spreadsheet, ProTools">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <meta name="author" content="IMAD LIMRANI (عماد العمراني)">
+    <meta name="author" content="IMAD LIMRANI">
     <meta name="application-name" content="ProTools">
     
     <link rel="canonical" href="https://protools.cloud/">
@@ -19,16 +19,16 @@
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="ProTools – تحويل الصور والجداول إلى Excel">
-    <meta property="og:description" content="استخرج الجداول والبيانات من الصور وصدّرها إلى ملفات Excel أو CSV قابلة للتحرير باستخدام تقنية OCR.">
+    <meta property="og:title" content="ProTools – Free Image to Excel Converter">
+    <meta property="og:description" content="Extract tables and data from images, review the results, and export editable Excel or CSV files with OCR.">
     <meta property="og:site_name" content="ProTools">
-    <meta property="og:locale" content="ar_AR">
+    <meta property="og:locale" content="en_US">
 
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="ProTools - Convert Image to Excel Online">
-    <meta name="twitter:description" content="استخراج الجداول والبيانات من الصور وتصديرها إلى Excel أو CSV.">
+    <meta name="twitter:description" content="Extract tables from images and export editable Excel or CSV spreadsheets.">
     <link rel="apple-touch-icon" href="/assets/images/protools-mark.svg">
     <meta property="og:image" content="https://protools.cloud/assets/images/protools-social.svg">
     <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
@@ -45,6 +45,8 @@
     <!-- Performance hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" referrerpolicy="no-referrer">
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
     <!-- Schema.org: SoftwareApplication -->
@@ -109,7 +111,7 @@
         }
     </script>
 
-    <!-- Lucide Icons -->
+    <!-- Lucide remains available for existing in-app controls; Font Awesome powers the shared navigation. -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Tesseract.js for OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
@@ -127,7 +129,7 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6996931662051674" crossorigin="anonymous"></script>
 </head>
 <body data-page="app" class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
-<a class="skip-link" href="#main-content">تجاوز إلى المحتوى</a>
+<a class="skip-link" href="#main-content">Skip to content</a>
 
     <!-- Top Navigation Bar -->
     <div id="site-header"></div>
@@ -135,8 +137,8 @@
     <main id="main-content" class="container mx-auto px-4 py-5 flex-1 max-w-7xl">
         <header class="app-hero text-center mb-5">
             <span class="app-hero__eyebrow">SMART DOCUMENT WORKSPACE</span>
-            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">تحويل الصور إلى Excel وCSV باستخدام OCR</h1>
-            <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">استخرج الجداول من الصور، راجع النصوص والبيانات وعدّلها، ثم صدّرها إلى ملف Excel قابل للتحرير.</p>
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">Convert Images to Excel and CSV with OCR</h1>
+            <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">Extract tables from images, review and edit the data, then export an editable Excel spreadsheet.</p>
         </header>
 
         <!-- Header Status Banner -->
@@ -147,9 +149,9 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h2 class="text-xs sm:text-sm font-bold">وضع المعالجة: <span id="currentEngineLabel" class="text-cyan-500">Gemini Vision AI + الضغط الذكي</span></h2>
+                        <h2 class="text-xs sm:text-sm font-bold">Processing mode: <span id="currentEngineLabel" class="text-cyan-500">Local OCR (Tesseract)</span></h2>
                     </div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="engineDescription">يتم استخراج الجداول والمعطيات بآلية الضغط المسبق والتصنيف الذكي للبيانات.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="engineDescription">Text recognition runs locally in your browser. Your image is processed on your device using Tesseract OCR.</p>
                 </div>
             </div>
 
@@ -157,11 +159,11 @@
             <div class="flex items-center gap-2">
                 <button id="btnHistoryToggle" onclick="toggleHistoryDrawer()" class="text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold px-3 py-2 rounded-xl transition-all border border-slate-300 dark:border-slate-700 flex items-center gap-1.5">
                     <i data-lucide="history" class="w-4 h-4 text-cyan-500"></i>
-                    <span>سجل المسوحات (<span id="historyCount">0</span>)</span>
+                    <span>Scan history (<span id="historyCount">0</span>)</span>
                 </button>
                 <button id="btnToggleSplitView" onclick="toggleSplitView()" class="hidden text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold px-3 py-2 rounded-xl transition-all border border-slate-300 dark:border-slate-700 flex items-center gap-1.5">
                     <i data-lucide="columns-2" class="w-4 h-4 text-indigo-500"></i>
-                    <span id="splitViewBtnText">المقارنة الجانبية</span>
+                    <span id="splitViewBtnText">Side-by-side comparison</span>
                 </button>
             </div>
         </section>
@@ -177,7 +179,7 @@
                             <i data-lucide="camera" class="w-4 h-4 text-cyan-500"></i>
                             التقاط وإعداد المستند
                         </h2>
-                        <span id="captureStatus" class="text-[11px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2.5 py-0.5 rounded-full font-medium border border-slate-300 dark:border-slate-700">جاهز للالتقاط</span>
+                        <span id="captureStatus" class="text-[11px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2.5 py-0.5 rounded-full font-medium border border-slate-300 dark:border-slate-700">Ready to capture</span>
                     </div>
 
                     <!-- Viewport Canvas / Video Stream -->
@@ -188,8 +190,8 @@
                             <div class="w-16 h-16 bg-slate-800/90 text-cyan-400 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform border border-slate-700 shadow-lg">
                                 <i data-lucide="camera" class="w-8 h-8"></i>
                             </div>
-                            <p class="text-white font-bold text-sm mb-1">التقط صورة للجدول أو اسحب الملف هنا</p>
-                            <p class="text-xs text-slate-400 mb-4 max-w-xs">يدعم الصور عالية الدقة (JPG, PNG, WebP) والمسح المباشر</p>
+                            <p class="text-white font-bold text-sm mb-1">Capture a table or drop an image here</p>
+                            <p class="text-xs text-slate-400 mb-4 max-w-xs">Supports JPG, PNG, and WebP images, plus direct camera capture</p>
                             
                             <div class="flex flex-wrap justify-center gap-2">
                                 <button id="btnStartCamera" class="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-lg transition-all flex items-center gap-2">
@@ -206,9 +208,9 @@
 
                         <!-- Camera Guide -->
                         <div id="cameraGuide" class="hidden absolute inset-4 border-2 border-dashed border-cyan-400/80 rounded-xl pointer-events-none flex flex-col items-center justify-between p-3 z-20">
-                            <span class="text-[10px] bg-cyan-600/90 text-white px-2 py-0.5 rounded-md backdrop-blur-md font-bold">إطار التركيز الحاد</span>
+                            <span class="text-[10px] bg-cyan-600/90 text-white px-2 py-0.5 rounded-md backdrop-blur-md font-bold">Focus frame</span>
                             <div class="scanner-line"></div>
-                            <span class="text-[10px] bg-slate-950/80 text-slate-300 px-3 py-1 rounded-full backdrop-blur-md">ضع الجدول بالكامل داخل الحدود لنتيجة فائقة</span>
+                            <span class="text-[10px] bg-slate-950/80 text-slate-300 px-3 py-1 rounded-full backdrop-blur-md">Fit the entire table inside the frame for best results</span>
                         </div>
 
                         <!-- Preview Canvas -->
@@ -222,15 +224,15 @@
                     <!-- Image Editing Toolbar -->
                     <div id="imageEditToolbar" class="hidden flex items-center justify-between bg-slate-200 dark:bg-slate-900 p-2 rounded-xl border border-slate-300 dark:border-slate-800 text-xs">
                         <div class="flex items-center gap-1">
-                            <button onclick="rotateImage(-90)" class="p-2 hover:bg-slate-300 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center gap-1" title="تدوير 90 درجة لليسار">
+                            <button onclick="rotateImage(-90)" class="p-2 hover:bg-slate-300 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center gap-1" title="Rotate 90° left">
                                 <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                             </button>
-                            <button onclick="rotateImage(90)" class="p-2 hover:bg-slate-300 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center gap-1" title="تدوير 90 درجة لليمين">
+                            <button onclick="rotateImage(90)" class="p-2 hover:bg-slate-300 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center gap-1" title="Rotate 90° right">
                                 <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
                             </button>
-                            <button onclick="toggleFiltersPanel()" class="p-2 hover:bg-slate-300 dark:hover:bg-slate-800 text-cyan-600 dark:text-cyan-400 rounded-lg transition-colors flex items-center gap-1 font-semibold" title="ضبط الألوان وتوضيح النصوص">
+                            <button onclick="toggleFiltersPanel()" class="p-2 hover:bg-slate-300 dark:hover:bg-slate-800 text-cyan-600 dark:text-cyan-400 rounded-lg transition-colors flex items-center gap-1 font-semibold" title="Adjust image colors and improve text clarity">
                                 <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
-                                <span>تحسين الصورة</span>
+                                <span>Image enhancement</span>
                             </button>
                         </div>
                         <span class="text-[10px] text-slate-500 font-mono px-2" id="imgDimensionsText">-- x -- px</span>
@@ -239,17 +241,17 @@
                     <!-- Image Filters Panel -->
                     <div id="filterControls" class="hidden space-y-3 bg-slate-200 dark:bg-slate-900/90 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 text-xs">
                         <div class="flex items-center justify-between font-bold">
-                            <span class="flex items-center gap-1.5"><i data-lucide="wand-2" class="w-3.5 h-3.5 text-cyan-500"></i> معالجة التباين للحصول على أقصى دقة</span>
-                            <button id="btnResetFilters" class="text-cyan-600 dark:text-cyan-400 hover:underline font-normal text-[11px]">إعادة ضبط</button>
+                            <span class="flex items-center gap-1.5"><i data-lucide="wand-2" class="w-3.5 h-3.5 text-cyan-500"></i> Adjust contrast for clearer text</span>
+                            <button id="btnResetFilters" class="text-cyan-600 dark:text-cyan-400 hover:underline font-normal text-[11px]">Reset</button>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-slate-500 dark:text-slate-400 mb-1 text-[11px]">التباين (Contrast)</label>
+                                <label class="block text-slate-500 dark:text-slate-400 mb-1 text-[11px]">Contrast</label>
                                 <input type="range" id="contrastSlider" min="0" max="250" value="125" class="w-full accent-cyan-500">
                             </div>
                             <div>
-                                <label class="block text-slate-500 dark:text-slate-400 mb-1 text-[11px]">السطوع (Brightness)</label>
+                                <label class="block text-slate-500 dark:text-slate-400 mb-1 text-[11px]">Brightness</label>
                                 <input type="range" id="brightnessSlider" min="0" max="200" value="105" class="w-full accent-cyan-500">
                             </div>
                         </div>
@@ -291,7 +293,7 @@
                     <div class="w-full bg-slate-200 dark:bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-300 dark:border-slate-800">
                         <div id="progressBar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
                     </div>
-                    <p class="text-[10px] text-slate-500 dark:text-slate-400 text-center">تطبيق ضغط مسبق للسرعة واستخراج الخلايا بذكاء عالي</p>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 text-center">Optimize the image before local text recognition</p>
                 </div>
             </div>
 
@@ -306,15 +308,15 @@
                                 <i data-lucide="table-properties" class="w-4 h-4 text-emerald-500"></i>
                                 جدول البيانات المحول (قابل للتعديل الفوري)
                             </h2>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">اضغط على أي خلية لتعديل محتواها مباشرة</p>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Select any cell to edit its contents</p>
                         </div>
 
                         <!-- Data Actions -->
                         <div id="tableActions" class="hidden flex flex-wrap gap-1.5">
-                            <button onclick="cleanAndNormalizeNumbers()" class="px-2.5 py-1.5 text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-cyan-600 dark:text-cyan-400 font-semibold rounded-lg flex items-center gap-1 border border-slate-300 dark:border-slate-700 transition-colors" title="تحويل الأرقام العربية الهندية إلى أرقام إنجليزية قياسية">
+                            <button onclick="cleanAndNormalizeNumbers()" class="px-2.5 py-1.5 text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-cyan-600 dark:text-cyan-400 font-semibold rounded-lg flex items-center gap-1 border border-slate-300 dark:border-slate-700 transition-colors" title="Convert Arabic-Indic digits to standard digits">
                                 <i data-lucide="binary" class="w-3.5 h-3.5"></i> توحيد الأرقام
                             </button>
-                            <button onclick="cleanEmptyRowsCols()" class="px-2.5 py-1.5 text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-semibold rounded-lg flex items-center gap-1 border border-slate-300 dark:border-slate-700 transition-colors" title="حذف الصفوف والأعمدة الفارغة تلقائياً">
+                            <button onclick="cleanEmptyRowsCols()" class="px-2.5 py-1.5 text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-semibold rounded-lg flex items-center gap-1 border border-slate-300 dark:border-slate-700 transition-colors" title="Remove empty rows and columns automatically">
                                 <i data-lucide="sparkle" class="w-3.5 h-3.5"></i> تنظيف
                             </button>
                             <button id="btnAddRow" class="px-2.5 py-1.5 text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-semibold rounded-lg flex items-center gap-1 border border-slate-300 dark:border-slate-700 transition-colors">
@@ -339,9 +341,9 @@
                             <input type="text" id="tableSearchInput" oninput="filterTableRows()" placeholder="تصفية وبحث في الجدول..." class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs w-full outline-none focus:border-cyan-500">
                         </div>
                         <div class="flex flex-wrap items-center gap-2 text-[11px] font-mono">
-                            <span id="statSum" class="bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-800 text-cyan-600 dark:text-cyan-400">المجموع: 0</span>
-                            <span id="statAvg" class="bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-800 text-indigo-600 dark:text-indigo-300">المتوسط: 0</span>
-                            <span id="statCount" class="bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-800 text-slate-500">الخلايا: 0</span>
+                            <span id="statSum" class="bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-800 text-cyan-600 dark:text-cyan-400">Sum: 0</span>
+                            <span id="statAvg" class="bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-800 text-indigo-600 dark:text-indigo-300">Average: 0</span>
+                            <span id="statCount" class="bg-white dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-800 text-slate-500">Cells: 0</span>
                         </div>
                     </div>
 
@@ -353,7 +355,7 @@
                             <div class="w-16 h-16 bg-slate-200 dark:bg-slate-800/60 text-indigo-500 rounded-2xl flex items-center justify-center mb-3 border border-slate-300 dark:border-slate-700/50 shadow-lg">
                                 <i data-lucide="file-spreadsheet" class="w-8 h-8"></i>
                             </div>
-                            <h3 class="font-bold text-sm mb-1">لا توجد بيانات معروضة حالياً</h3>
+                            <h3 class="font-bold text-sm mb-1">No extracted data yet</h3>
                             <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">
                                 قم بالتقاط صورة للمستند الورقي أو الفاتورة، وستظهر البيانات هنا في جدول شبكي منظم بدقة.
                             </p>
@@ -368,8 +370,8 @@
 
                     <!-- Footer Details -->
                     <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mt-2 px-1">
-                        <span id="rowCountText">عدد الصفوف: 0</span>
-                        <span id="colCountText">عدد الأعمدة: 0</span>
+                        <span id="rowCountText">Rows: 0</span>
+                        <span id="colCountText">Columns: 0</span>
                     </div>
                 </div>
             </div>
@@ -378,8 +380,8 @@
 
         <!-- AdSense Slot Container -->
         <div id="adsense-top-banner" class="my-6 glass-panel rounded-2xl p-4 text-center min-h-[90px] flex flex-col items-center justify-center border border-dashed border-slate-300 dark:border-slate-700">
-            <span class="text-[10px] text-slate-500 font-mono mb-1">إعلان / Advertisement</span>
-            <p class="text-xs text-slate-400">مساحة مخصصة لإعلانات Google AdSense (أعلى الصفحة)</p>
+            <span class="text-[10px] text-slate-500 font-mono mb-1">Advertisement</span>
+            <p class="text-xs text-slate-400">Reserved space for Google AdSense (top of page)</p>
         </div>
 
         <!-- SEO Rich Content Section -->
@@ -390,7 +392,7 @@
                     دليل استخدام الماسح الذكي لتحويل الصور إلى جدول Excel
                 </h2>
                 <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-                    يعتبر <strong>الماسح الذكي جداول Excel Pro</strong> أداة متطورة تعتمد على أحدث تقنيات الذكاء الاصطناعي البصري (Gemini Vision AI) والتعرف الضوئي على الحروف (OCR). تتيح لك هذه الأداة التقاط صور المستندات، الفواتير، كشوفات الحضور، أو الميزانيات المالية واستخراج البيانات فوراً إلى جداول إكسل تفاعلية قابلة للتعديل والتصدير بضغطة زر.
+                    ProTools is a practical image-to-Excel tool that uses in-browser optical character recognition (OCR) to turn pictures of tables, receipts, attendance sheets, and financial documents into editable spreadsheet data. Capture or upload an image, review the extracted rows and columns, make corrections, and export the result.
                 </p>
             </article>
 
@@ -398,18 +400,18 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-slate-200/60 dark:bg-slate-900/80 p-4 rounded-xl border border-slate-300 dark:border-slate-800 space-y-2">
                     <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-500 flex items-center justify-center font-bold text-sm">1</div>
-                    <h3 class="font-bold text-sm">التقاط أو رفع الصورة</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">قم بتشغيل الكاميرا مباشرة من المتصفح أو قم برفع ملف صورة من جهازك (JPG, PNG, WebP).</p>
+                    <h3 class="font-bold text-sm">Capture or upload an image</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Use your device camera or upload an image (JPG, PNG, or WebP) from your computer or phone.</p>
                 </div>
                 <div class="bg-slate-200/60 dark:bg-slate-900/80 p-4 rounded-xl border border-slate-300 dark:border-slate-800 space-y-2">
                     <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-500 flex items-center justify-center font-bold text-sm">2</div>
-                    <h3 class="font-bold text-sm">التحليل وقراءة الخلايا</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">يتولى المحرك الذكي تحديد الصفوف والأعمدة واستخراج النصوص والأرقام بآلية فائقة.</p>
+                    <h3 class="font-bold text-sm">Recognize and organize the data</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Tesseract OCR recognizes text in your image. The extracted content is arranged into rows and columns for review.</p>
                 </div>
                 <div class="bg-slate-200/60 dark:bg-slate-900/80 p-4 rounded-xl border border-slate-300 dark:border-slate-800 space-y-2">
                     <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold text-sm">3</div>
-                    <h3 class="font-bold text-sm">التعديل والتصدير لإكسل</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">يمكنك تعديل أي خلية، توحيد الأرقام العربية والإنجليزي، وتصدير الملف بصيغة XLSX مباشرة.</p>
+                    <h3 class="font-bold text-sm">Edit and export to Excel</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Edit cells, normalize digits, and export your spreadsheet as an XLSX file.</p>
                 </div>
             </div>
 
@@ -423,42 +425,42 @@
                 <div class="space-y-3 text-xs sm:text-sm">
                     <details class="bg-slate-200/50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 cursor-pointer group" open>
                         <summary class="font-bold list-none flex items-center justify-between">
-                            <span>كيف أحصل على أفضل دقة واستخراج صحيحة للبيانات من الصورة؟</span>
+                            <span>How can I get the best OCR results from an image?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                         </summary>
-                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">للحصول على أفضل النتائج، احرص على التقاط الصورة تحت إضاءة جيدة وأن يكون الجدول في وضع مستقيم ومسطح، واستخدم خيارات "تحسين الصورة" داخل التطبيق لزيادة التباين وضبط الأبيض والأسود قبل البدء في القراءة.</p>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">Use a sharp, well-lit image and keep the document flat and upright. If needed, adjust contrast and brightness with the image enhancement controls before running OCR.</p>
                     </details>
 
                     <details class="bg-slate-200/50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 cursor-pointer group">
                         <summary class="font-bold list-none flex items-center justify-between">
-                            <span>هل يضمن التطبيق أمان وخصوصية مستنداتي وصوري المرفوعة؟</span>
+                            <span>Are my uploaded images and documents private?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                         </summary>
-                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">نعم بالكامل! تتم معالجة الصور مؤقتاً لحساب وقراءة خلايا الجدول فقط. لا نقوم بتخزين أو مشاركة أي من صورك أو ملفاتك المالية على خوادم دائمية، ويمكنك مسح كافة السجلات في أي وقت.</p>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">The current OCR workflow runs in your browser using Tesseract. Images are processed locally for recognition. Scan history is stored in your browser until you clear it. Review the Privacy Policy for details about analytics and third-party services.</p>
                     </details>
 
                     <details class="bg-slate-200/50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 cursor-pointer group">
                         <summary class="font-bold list-none flex items-center justify-between">
-                            <span>ما هي صيغ الصور والملفات التي يمكنني تحويلها إلى Excel؟</span>
+                            <span>Which image formats can I convert to Excel?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                         </summary>
-                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">يدعم تطبيق الماسح الذكي جميع صيغ الصور الشهيرة بما في ذلك JPG, PNG, WebP, BMP، بالإضافة إلى إمكانية المسح الضوئي المباشر من كاميرا الجوال أو المحمول.</p>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">The tool supports common image formats including JPG, PNG, WebP, and BMP, as well as direct capture from a mobile or desktop camera.</p>
                     </details>
 
                     <details class="bg-slate-200/50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 cursor-pointer group">
                         <summary class="font-bold list-none flex items-center justify-between">
-                            <span>كيف أتغلب على مشكلة تداخل الأرقام الهندية والعربية (١،٢،٣ مقابل 1,2,3)؟</span>
+                            <span>Can I convert Arabic-Indic digits to standard digits?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                         </summary>
-                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">نوفر زر "توحيد الأرقام" أعلى شريط الجدول. بنقرة واحدة يتم تحويل جميع الأرقام المكتوبة بالصيغة العربية الشرقية إلى أرقام إنجليزية قياسية لتسهيل العمليات الحسابية والصيغ في ملفات Excel.</p>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">Use the Normalize Numbers control above the table to convert Arabic-Indic digits into standard Western digits for easier spreadsheet calculations.</p>
                     </details>
 
                     <details class="bg-slate-200/50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 cursor-pointer group">
                         <summary class="font-bold list-none flex items-center justify-between">
-                            <span>هل يعمل التطبيق في حالة عدم توفر شبكة إنترنت؟</span>
+                            <span>Does OCR work without an internet connection?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
                         </summary>
-                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">يمكنك اختيار "محرك المحلي (OCR)" من شريط الوضع العلوي لقراءة المستندات مباشرة عبر جهازك بدون إنترنت باستخدام تقنية Tesseract OCR، بينما يوفر خيار Gemini Vision أقصى دقة للجداول المعقدة عبر الشبكة.</p>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">Tesseract recognition runs in your browser after the OCR library and language data have loaded. The first use may require an internet connection to download these resources. Once cached, availability depends on your browser cache and service-worker behavior.</p>
                     </details>
                 </div>
             </div>
@@ -467,7 +469,7 @@
     </main>
 
     <!-- Footer -->
-    <section class="editorial-links" aria-labelledby="editorial-links-title"><div class="editorial-links__inner"><p class="editorial-links__eyebrow">مركز المعرفة</p><h2 id="editorial-links-title">تعلم كيفية استخراج الجداول بدقة أكبر</h2><p>أدلة عملية تشرح طريقة التحويل، وحدود OCR، وكيفية تحسين جودة الصور قبل المعالجة.</p><div class="editorial-links__grid"><a href="/pages/image-to-excel-guide.html"><strong>دليل تحويل الصور إلى Excel</strong><span>خطوات تجهيز الصورة واستخراج الجدول ومراجعته وتصديره.</span></a><a href="/pages/ocr-accuracy-guide.html"><strong>تحسين دقة OCR</strong><span>العوامل التي تؤثر في التعرف ونصائح عملية لتقليل الأخطاء.</span></a><a href="/pages/ocr-table-extraction.html"><strong>كيف يستخرج OCR الجداول؟</strong><span>فهم مراحل قراءة النصوص وترتيبها في صفوف وأعمدة.</span></a></div></div></section>
+    <section class="editorial-links" aria-labelledby="editorial-links-title"><div class="editorial-links__inner"><p class="editorial-links__eyebrow">Knowledge Center</p><h2 id="editorial-links-title">Learn to extract tables more accurately</h2><p>Practical guides to image-to-Excel conversion, OCR limitations, and image quality improvements.</p><div class="editorial-links__grid"><a href="/pages/image-to-excel-guide.html"><strong>Image to Excel guide</strong><span>Prepare an image, extract its table, review the data, and export it.</span></a><a href="/pages/ocr-accuracy-guide.html"><strong>Improve OCR accuracy</strong><span>Understand recognition quality and learn how to reduce errors.</span></a><a href="/pages/ocr-table-extraction.html"><strong>How OCR extracts tables</strong><span>Learn how text is recognized and arranged into rows and columns.</span></a></div></div></section>
 <div id="site-footer"></div>
 
     <!-- AdSense Compliant Essential Pages Modal (About, Privacy Policy, Terms of Use, Contact) -->
@@ -481,8 +483,8 @@
                         <i data-lucide="shield-check" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">المركز القانوني والمعلومات</h3>
-                        <p class="text-[10px] sm:text-xs text-slate-500">معلومات التطبيق، سياسات الاستخدام والخصوصية المعتمدة</p>
+                        <h3 class="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">Legal & information center</h3>
+                        <p class="text-[10px] sm:text-xs text-slate-500">Application information, terms of use, and privacy policies</p>
                     </div>
                 </div>
                 <button onclick="closeLegalModal()" class="p-1.5 text-slate-400 hover:text-rose-500 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
@@ -517,7 +519,7 @@
                             حول أداة الماسح الذكي Excel Pro
                         </h4>
                         <p>
-                            مرحباً بكم في <strong>الماسح الذكي Excel Pro</strong>، المنصة المتقدمة المتخصصة في تحويل المستندات الورقية، الفواتير، الإيصالات، الجداول المالية، وكشوف الحضور إلى ملفات إكسل (XLSX) تفاعلية وقابلة للتعديل والتحليل خلال ثوانٍ معدودة.
+                            Welcome to ProTools, an online workspace for converting images of tables and documents into editable spreadsheet data. Capture or upload an image, review the recognized text, edit the table, and export it to XLSX.
                         </p>
                     </div>
 
@@ -535,18 +537,18 @@
                                 <i data-lucide="cpu" class="w-4 h-4"></i> التقنيات المستخدمة
                             </h5>
                             <p class="text-xs text-slate-600 dark:text-slate-400">
-                                ندمج بين أحدث نماذج الذكاء الاصطناعي البصري (Gemini Vision AI) لمعالجة الهياكل المعقدة، والتعرف الضوئي على الحروف المحلي (Tesseract OCR) لضمان السرعة العالية واستمرارية العمل.
+                                ProTools uses in-browser Tesseract OCR to recognize text and numbers in uploaded images. The extracted table can then be reviewed and edited before export.
                             </p>
                         </div>
                     </div>
 
                     <div class="space-y-2 pt-2">
-                        <h5 class="font-bold text-sm text-slate-900 dark:text-white">لماذا يفضل المستخدمون الماسح الذكي؟</h5>
+                        <h5 class="font-bold text-sm text-slate-900 dark:text-white">Why use ProTools?</h5>
                         <ul class="list-disc list-inside space-y-1 text-xs text-slate-600 dark:text-slate-400">
-                            <li>تحويل دقيق للجداول العربية والإنجليزية والأرقام المزدوجة.</li>
-                            <li>معالجة سريعة مع خيارات المعاينة والضغط الذكي قبل التحليل.</li>
-                            <li>تحرير فوري للبيانات، تنظيف الصفوف الفارغة، وتوحيد الأرقام بضغطة زر.</li>
-                            <li>احترام كامل لخصوصية المستخدم: لا نقم بتخزين صورك أو مستنداتك بشكل دائم على خوادمنا.</li>
+                            <li>Recognize tables containing English and Arabic text and digits.</li>
+                            <li>Preview and enhance images before running OCR.</li>
+                            <li>Edit extracted data, remove empty rows, and normalize digits.</li>
+                            <li>Local OCR processing keeps image recognition in your browser. See the Privacy Policy for analytics and browser storage details.</li>
                         </ul>
                     </div>
                 </div>
@@ -555,25 +557,25 @@
                 <div id="legalTabPrivacy" class="hidden space-y-4">
                     <div class="bg-amber-500/10 p-3.5 rounded-xl border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
                         <i data-lucide="shield-alert" class="w-5 h-5 shrink-0"></i>
-                        <span>تعتبر هذه السياسة وثيقة قانونية متوافقة مع شروط حماية البيانات العامة (GDPR & CCPA).</span>
+                        <span>This policy explains how ProTools handles personal information in line with applicable privacy requirements.</span>
                     </div>
 
-                    <h4 class="font-bold text-base text-slate-900 dark:text-white">1. مقدمة والتزام بالخصوصية</h4>
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">1. Introduction and privacy commitment</h4>
                     <p class="text-xs">
-                        في <strong>الماسح الذكي Excel Pro</strong>، نولي أهمية قصوى لخصوصية زوارنا ومستخدمينا. توضح هذه الوثيقة أنواع المعلومات التي نجمعها وكيفية استخدامها وحمايتها.
+                        At <strong>ProTools</strong>, we take visitor and user privacy seriously. This policy explains what information may be collected, how it is used, and the safeguards applied.
                     </p>
 
-                    <h4 class="font-bold text-base text-slate-900 dark:text-white">2. معالجة الصور والمستندات المرفوعة</h4>
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">2. Uploaded images and documents</h4>
                     <p class="text-xs">
-                        عند استخدام الكاميرا أو رفع صورة جدول، يتم معالجة الصورة مؤقتاً في الذاكرة لتطبيق خوارزميات الاستخراج واستعادة النصوص والبيانات الرقمية. <strong>لا يتم بيع أو مشاركة أو تخزين صور مستنداتك الشخصية أو المالية بشكل دائم على خوادمنا.</strong>
+                        When you capture or upload a table image, the current OCR workflow processes it in your browser using Tesseract. Scan history may be stored locally in your browser. We do not claim that all site data is stored only locally: analytics and advertising services may process their own data as described below.
                     </p>
 
-                    <h4 class="font-bold text-base text-slate-900 dark:text-white">3. ملفات تعريف الارتباط والتحليلات</h4>
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">3. Cookies, analytics, and advertising</h4>
                     <p class="text-xs">
                         تستخدم هذه المنصة خدمات التحليل القياسية اختياريًا لجمع بيانات إحصائية غير معرّفة للشخصية بهدف تحسين تجربة المستخدم وأداء التطبيق.
                     </p>
 
-                    <h4 class="font-bold text-base text-slate-900 dark:text-white">4. حقوق الخصوصية (GDPR / CCPA)</h4>
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">4. Privacy rights</h4>
                     <p class="text-xs">
                         يحق لكل مستخدم طلب معرفة البيانات المخزنة محلياً (مثل سجل المسوحات في متصفحك) أو مسحها بالكامل في أي وقت باستخدام خيار "مسح السجل" المتوفر داخل التطبيق.
                     </p>
@@ -581,21 +583,21 @@
 
                 <!-- TAB 3: TERMS OF USE (شروط الاستخدام) -->
                 <div id="legalTabTerms" class="hidden space-y-4">
-                    <h4 class="font-bold text-base text-slate-900 dark:text-white">1. الموافقة على الشروط</h4>
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">1. Acceptance of these terms</h4>
                     <p class="text-xs">
-                        باستخدامك لموقع وتطبيق <strong>الماسح الذكي Excel Pro</strong>، فإنك تقر بالموافقة الكاملة على شروط الاستخدام الموضحة هنا وأي تعديلات تطرأ عليها مستقبلاً.
+                        By using the <strong>ProTools</strong> website and application, you agree to these terms and any updates published here.
                     </p>
 
-                    <h4 class="font-bold text-base text-slate-900 dark:text-white">2. الاستخدام المسموح به والحظر</h4>
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">2. Acceptable use</h4>
                     <p class="text-xs">
                         يُسمح باستخدام الخدمة للأغراض الشخصية، المهنية، والتعليمية المباشرة. يُمنع منعاً باتاً:
                     </p>
                     <ul class="list-disc list-inside space-y-1 text-xs text-slate-600 dark:text-slate-400 mr-2">
-                        <li>رفع أو مسح مستندات مزورة، غير قانونية، أو تنتهك حقوق الملكية الفكرية للآخرين.</li>
-                        <li>محاولة استغلال الخدمة لإرسال برمجيات خبيثة أو إغراق النظام بطلبات مؤتمتة ضارة (Bot Attack).</li>
+                        <li>Do not upload forged or unlawful documents, or documents that infringe another person’s intellectual property rights.</li>
+                        <li>Do not use the service to distribute malware or overwhelm it with harmful automated requests.</li>
                     </ul>
 
-                    <h4 class="font-bold text-base text-slate-900 dark:text-white">3. إخلاء المسؤولية عن دقة النتائج</h4>
+                    <h4 class="font-bold text-base text-slate-900 dark:text-white">3. OCR accuracy disclaimer</h4>
                     <p class="text-xs">
                         يعتمد التطبيق على خوارزميات الذكاء الاصطناعي وتقنية OCR لاستخراج النصوص والجداول. بالرغم من تحقيق دقة عالية جداً، إلا أنه يتعين على المستخدم **مراجعة وتدقيق البيانات المستخرجة والعمليات الحسابية** قبل الاعتماد النهائي عليها في المعاملات المالية أو الرسمية.
                     </p>
@@ -615,26 +617,26 @@
                     <form id="contactForm" onsubmit="handleContactSubmit(event)" class="space-y-3 pt-2">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block font-bold text-xs mb-1">الاسم الكامل:</label>
+                                <label class="block font-bold text-xs mb-1">Full name</label>
                                 <input type="text" required id="contactName" placeholder="أدخل اسمك الكريم" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500">
                             </div>
                             <div>
-                                <label class="block font-bold text-xs mb-1">البريد الإلكتروني:</label>
+                                <label class="block font-bold text-xs mb-1">Email address</label>
                                 <input type="email" required id="contactEmail" placeholder="example@domain.com" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block font-bold text-xs mb-1">موضوع الرسالة:</label>
+                            <label class="block font-bold text-xs mb-1">Message topic</label>
                             <select id="contactSubject" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500">
-                                <option value="support">دعم فني / استفسار حول التطبيق</option>
-                                <option value="suggestion">اقتراح تحسين</option>
-                                <option value="privacy">استفسار بخصوص الخصوصية</option>
+                                <option value="support">Technical support / product question</option>
+                                <option value="suggestion">Feature suggestion</option>
+                                <option value="privacy">Privacy question</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block font-bold text-xs mb-1">نص الرسالة:</label>
+                            <label class="block font-bold text-xs mb-1">Message</label>
                             <textarea required id="contactMessage" rows="4" placeholder="اكتب تفاصيل استفسارك هنا..." class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500"></textarea>
                         </div>
 
@@ -648,7 +650,7 @@
 
             <!-- Modal Footer -->
             <div class="p-3 bg-slate-100/50 dark:bg-slate-900/50 border-t border-slate-300 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
-                <span>تاريخ التحديث: سبتمبر 2026</span>
+                <span>Last updated: November 2026</span>
                 <button onclick="closeLegalModal()" class="px-4 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-bold rounded-xl text-slate-800 dark:text-slate-200 transition-colors">
                     إغلاق
                 </button>
@@ -671,9 +673,9 @@
 
             <div class="space-y-3 text-xs">
                 <div>
-                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">معرف قياس Google Analytics (GA4 Tag ID):</label>
-                    <input type="text" id="gaInputId" placeholder="مثال: G-XXXXXXXXXX" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 outline-none focus:border-indigo-500 font-mono text-xs">
-                    <p class="text-[10px] text-slate-500 mt-1">يتم ربط الكود وتفعيله برمجياً بالكامل داخل الجافاسكربت فور إدخال المعرف.</p>
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Google Analytics measurement ID (GA4)</label>
+                    <input type="text" id="gaInputId" placeholder="Example: G-XXXXXXXXXX" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 outline-none focus:border-indigo-500 font-mono text-xs">
+                    <p class="text-[10px] text-slate-500 mt-1">The measurement ID is applied by the application after you save the setting.</p>
                 </div>
 
                 <div class="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 text-indigo-600 dark:text-indigo-300 text-[11px] leading-relaxed">
@@ -683,8 +685,8 @@
             </div>
 
             <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-300 dark:border-slate-700">
-                <button onclick="closeSettingsModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-xs">إلغاء</button>
-                <button onclick="saveAnalyticsSettings()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs shadow-lg">حفظ وتفعيل التتبع</button>
+                <button onclick="closeSettingsModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-xs">Cancel</button>
+                <button onclick="saveAnalyticsSettings()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs shadow-lg">Save and enable tracking</button>
             </div>
         </div>
     </div>
@@ -701,7 +703,7 @@
             </button>
         </div>
         <div id="historyList" class="flex-1 overflow-y-auto space-y-2.5 custom-scrollbar text-xs">
-            <p class="text-slate-500 text-center py-8">لا يوجد مسوحات محفوظة بعد</p>
+            <p class="text-slate-500 text-center py-8">No saved scans yet</p>
         </div>
         <button onclick="clearHistory()" class="mt-3 w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-xs font-bold rounded-xl border border-rose-500/20">
             مسح السجل بالكامل
@@ -714,8 +716,8 @@
             <i id="toastIcon" data-lucide="info" class="w-5 h-5"></i>
         </div>
         <div>
-            <h4 id="toastTitle" class="font-bold text-xs">تنبيه</h4>
-            <p id="toastMsg" class="text-xs text-slate-500 dark:text-slate-400">إشعار التطبيق</p>
+            <h4 id="toastTitle" class="font-bold text-xs">Notice</h4>
+            <p id="toastMsg" class="text-xs text-slate-500 dark:text-slate-400">Application notification</p>
         </div>
     </div>
 

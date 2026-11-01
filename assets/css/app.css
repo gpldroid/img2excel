@@ -170,3 +170,9 @@ html.dark #tableContainer td{color:#e2e8f0}html.dark #tableContainer tr:nth-chil
 html.dark #adsense-top-banner{background:rgba(17,24,39,.7)!important;border-color:#293247!important}
 html.dark .editorial-links{background:linear-gradient(135deg,#101827,#17172d);border-color:#293247}
 @media(prefers-reduced-motion:reduce){#main-content *,#main-content *:before,#main-content *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+/* Mobile-safe workspace spacing and English-first typography */
+body[data-page="app"]{font-family:'Inter',system-ui,-apple-system,"Segoe UI",sans-serif}
+.app-hero h1{letter-spacing:-.035em}
+.app-hero p{max-width:760px}
+@media(max-width:760px){#main-content{padding-bottom:24px}.app-hero{margin-bottom:16px}.app-hero h1{font-size:clamp(24px,7vw,34px);line-height:1.2}}

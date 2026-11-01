@@ -2,8 +2,11 @@
 const mount=document.getElementById('site-footer');
 if(!mount)return;
 mount.outerHTML='<footer class="site-footer"><div class="site-footer__inner">'+
-'<div class="site-footer__brand"><a href="/" aria-label="ProTools الصفحة الرئيسية">ProTools</a><p>أداة ويب لاستخراج الجداول والبيانات من الصور ومراجعتها وتصديرها إلى ملفات قابلة للتحرير.</p></div>'+
-'<nav class="site-footer__links" aria-label="روابط الموقع"><a href="/pages/image-to-excel-guide.html">دليل تحويل الصور إلى Excel</a><a href="/pages/ocr-accuracy-guide.html">تحسين دقة OCR</a><a href="/pages/ocr-table-extraction.html">كيف يعمل OCR</a><a href="/pages/about.html">من نحن</a><a href="/pages/contact.html">اتصل بنا</a><a href="/pages/advertising.html">معلومات الإعلانات</a><a href="/legal/privacy.html">سياسة الخصوصية</a><a href="/legal/terms.html">شروط الاستخدام</a><a href="/legal/disclaimer.html">إخلاء المسؤولية</a></nav>'+
-'<div class="site-footer__bottom"><span>© '+new Date().getFullYear()+' ProTools</span><a href="mailto:info@larache.xyz">info@larache.xyz</a><span>راجع البيانات المستخرجة قبل استخدامها في قرارات مهمة.</span></div>'+
-'</div></footer>';
+'<div class="site-footer__intro"><a class="site-footer__brand" href="/"><img src="/assets/images/protools-mark.svg" alt="" width="38" height="38"><span>ProTools</span></a><p>Simple, practical tools that help you turn documents into useful, editable data. Start with image-to-Excel conversion, powered by in-browser OCR.</p></div>'+
+'<div class="site-footer__columns">'+
+'<section class="site-footer__column"><h2>Tools</h2><a href="/#main-content">Image to Excel</a><a href="/pages/ocr-table-extraction.html">OCR table extraction</a><a href="/pages/ocr-accuracy-guide.html">OCR accuracy tips</a></section>'+
+'<section class="site-footer__column"><h2>Resources</h2><a href="/pages/image-to-excel-guide.html">Image to Excel guide</a><a href="/pages/ocr-table-extraction.html">How OCR works</a><a href="/pages/advertising.html">Advertising information</a></section>'+
+'<section class="site-footer__column"><h2>Company</h2><a href="/pages/about.html">About ProTools</a><a href="/pages/contact.html">Contact</a><a href="mailto:info@larache.xyz">Email support</a></section>'+
+'<section class="site-footer__column"><h2>Legal</h2><a href="/legal/privacy.html">Privacy policy</a><a href="/legal/terms.html">Terms of use</a><a href="/legal/disclaimer.html">Disclaimer</a></section>'+
+'</div><div class="site-footer__bottom"><span>© '+new Date().getFullYear()+' ProTools. All rights reserved.</span><span>Review extracted data before relying on it for important decisions.</span></div></div></footer>';
 })();
