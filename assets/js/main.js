@@ -484,18 +484,50 @@
             return match ? match[1] : 'eng';
         }
 
-        async function detectOcrLanguage(imageData) {
-            if (!activeOcrDetector) {
-                activeOcrDetector = await Tesseract.createWorker('eng', 1, { legacyCore: true, legacyLang: true,
-                    logger: m => {
-                        if (m.status === 'loading language traineddata' || m.status === 'initializing api') {
-                            updateOcrProgress('Preparing automatic language detection…');
-                        }
-                    }
-                });
-            }
+        async function withOcrTimeout(promise, timeoutMs, operation) {
+            let timeoutId;
             try {
-                const result = await activeOcrDetector.detect(imageData);
+                return await Promise.race([
+                    promise,
+                    new Promise((_, reject) => {
+                        timeoutId = setTimeout(() => reject(new Error(operation + ' timed out after ' + Math.round(timeoutMs / 1000) + ' seconds')), timeoutMs);
+                    })
+                ]);
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        async function detectOcrLanguage(imageData) {
+            let detectorCreation = null;
+            try {
+                updateOcrProgress('Preparing automatic writing-system detection…');
+                progressBar.style.width = '8%';
+                progressText.innerText = 'Preparing…';
+
+                if (!activeOcrDetector) {
+                    detectorCreation = Tesseract.createWorker('eng', 1, {
+                        legacyCore: true,
+                        legacyLang: true,
+                        logger: m => {
+                            if (m.status === 'loading language traineddata' || m.status === 'initializing api') {
+                                updateOcrProgress('Preparing automatic language detection…');
+                                progressText.innerText = 'Preparing…';
+                            }
+                        }
+                    });
+                    try {
+                        activeOcrDetector = await withOcrTimeout(detectorCreation, 12000, 'Writing-system detector initialization');
+                    } catch (error) {
+                        // If initialization completes after the timeout, release the unused worker.
+                        detectorCreation.then(worker => worker.terminate()).catch(() => {});
+                        throw error;
+                    }
+                }
+
+                updateOcrProgress('Analyzing document writing system…');
+                progressText.innerText = 'Analyzing…';
+                const result = await withOcrTimeout(activeOcrDetector.detect(imageData), 12000, 'Writing-system detection');
                 const script = result && result.data && result.data.script ? result.data.script : '';
                 const confidence = Number(result && result.data && result.data.script_confidence);
                 const language = languageForDetectedScript(script);
@@ -503,7 +535,12 @@
                 // Latin-script text defaults to English; users can select an exact pack below.
                 return { language, script, confidence };
             } catch (error) {
-                console.warn('OCR script detection unavailable; falling back to English.', error);
+                console.warn('OCR script detection unavailable; using the English + Arabic fallback.', error);
+                if (activeOcrDetector) {
+                    const detector = activeOcrDetector;
+                    activeOcrDetector = null;
+                    detector.terminate().catch(() => {});
+                }
                 return { language: 'eng', script: 'unknown', confidence: 0, fallbackLanguages: ['eng', 'ara'] };
             }
         }
@@ -519,7 +556,9 @@
             activeOcrWorker = await Tesseract.createWorker(languageKey, 1, {
                 logger: m => {
                     if (m.status === 'loading language traineddata' || m.status === 'initializing api') {
-                        updateOcrProgress('Loading ' + languageKey.replace(/\+/g, ' + ') + ' OCR data…');
+                        updateOcrProgress('Loading ' + languageKey.replace(/\\+/g, ' + ') + ' OCR data…');
+                        progressBar.style.width = '12%';
+                        progressText.innerText = 'Loading…';
                     }
                     if (m.status === 'recognizing text') {
                         const pct = Math.round(m.progress * 100);
@@ -542,7 +581,9 @@
                 detectedOcrScript = detected.script || '';
                 languages = detected.fallbackLanguages || [detected.language];
                 const detectedName = detected.fallbackLanguages ? 'English + Arabic fallback' : (OCR_LANGUAGE_OPTIONS.find(item => item[0] === detected.language)?.[1] || 'English');
-                updateOcrProgress('Detected ' + (detected.script || 'unknown') + ' script · using ' + detectedName + ' OCR…');
+                updateOcrProgress((detected.fallbackLanguages ? 'Automatic detection unavailable · ' : 'Detected ' + (detected.script || 'unknown') + ' script · ') + 'using ' + detectedName + ' OCR…');
+                progressBar.style.width = '12%';
+                progressText.innerText = 'Loading…';
                 const summary = document.getElementById('ocrLanguageSummary');
                 if (summary) summary.textContent = 'Detected: ' + detectedName;
             } else {
