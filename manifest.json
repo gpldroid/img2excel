@@ -9,5 +9,5 @@
   "display": "standalone",
   "orientation": "portrait",
   "icons": [{"src":"/assets/images/protools-mark.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}],
-  "description": "أدوات ويب ذكية لتحويل الصور والجداول إلى ملفات Excel وCSV قابلة للتحرير."
+  "description": "A lightweight web tool for extracting tables from images and exporting editable Excel and CSV files."
 }
