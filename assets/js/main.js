@@ -635,7 +635,7 @@
                 });
             });
 
-            document.getElementById('statSum').innerText = `Sum: ${totalSum.toLocaleString('ar-EG')}`;
+            document.getElementById('statSum').innerText = `Sum: ${totalSum.toLocaleString('en-US')}`;
             document.getElementById('statAvg').innerText = `Average: ${(numericCount ? (totalSum / numericCount) : 0).toFixed(2)}`;
             document.getElementById('statCount').innerText = `Cells: ${totalCells}`;
         }
@@ -718,7 +718,7 @@
             if (extractedGridData.length === 0) return;
             const item = {
                 id: Date.now(),
-                timestamp: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
                 data: JSON.parse(JSON.stringify(extractedGridData)),
                 rows: extractedGridData.length,
                 cols: extractedGridData[0].length
