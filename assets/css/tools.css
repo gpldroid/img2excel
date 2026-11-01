@@ -58,3 +58,9 @@ html.dark .pt-tool-table td[contenteditable=true]{background:#202d3a}
 html.dark .pt-tool-privacy{background:#173b30;color:#86efac}
 @media(max-width:650px){.pt-tool-wrap{margin:22px auto 42px}.pt-tool-controls{align-items:stretch}.pt-tool-field{min-width:calc(50% - 8px)}.pt-tool-controls>.pt-tool-btn{width:100%}.pt-tool-hero{border-radius:18px}.pt-tool-panel{border-radius:16px}}
 @media(prefers-reduced-motion:reduce){.pt-tool-card,.pt-tool-progress>span{transition:none}}
+
+/* Tool featured artwork: responsive, descriptive image placed directly below each page H1. */
+.pt-tool-cover{width:100%;margin:22px 0 0;overflow:hidden;border:1px solid var(--iu-border,#DCE1E7);border-radius:20px;background:#F5F7FB;box-shadow:0 10px 26px rgba(32,40,51,.07)}
+.pt-tool-cover img{display:block;width:100%;height:auto;aspect-ratio:1200/630;object-fit:cover}
+.pt-tool-cover figcaption{padding:9px 14px;color:#667085;font-size:12px;line-height:1.5;text-align:center;background:#fff}
+@media(max-width:640px){.pt-tool-cover{margin-top:17px;border-radius:14px}.pt-tool-cover figcaption{font-size:11px;padding:8px 10px}}
