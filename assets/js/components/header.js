@@ -16,12 +16,12 @@ const controls=isApp?'<div class="app-header-controls" aria-label="Application c
 '<button id="btnThemeToggle" class="app-theme-toggle" type="button" onclick="toggleTheme()" title="Toggle color theme" aria-label="Toggle color theme"><i id="themeIcon" class="fa-solid fa-moon" aria-hidden="true"></i><span id="themeLabel" class="sr-only">Switch to dark mode</span></button>'+
 '</div>':'';
 const tabs=[
- ['/','fa-house','Home'],
- ['#main-content','fa-wand-magic-sparkles','Convert'],
+ ['/#main-content','fa-wand-magic-sparkles','Convert'],
  ['/pages/image-to-excel-guide.html','fa-book-open','Guides'],
- ['/pages/about.html','fa-circle-info','About']
+ ['/pages/about.html','fa-circle-info','About'],
+ ['/pages/contact.html','fa-envelope','Contact']
 ];
-const tabHtml=tabs.map(([href,icon,label],i)=>'<a class="mobile-tab'+((i===0&&path==='/')||(i===2&&path.includes('guide'))||(i===3&&path.includes('about'))?' is-active':'')+'" href="'+href+'"'+(((i===0&&path==='/')||(i===2&&path.includes('guide'))||(i===3&&path.includes('about')))?' aria-current="page"':'')+'><i class="fa-solid '+icon+'" aria-hidden="true"></i><span>'+label+'</span></a>').join('');
+const tabHtml=tabs.map(([href,icon,label],i)=>{const active=(i===0&&isApp)||(i===1&&path.includes('guide'))||(i===2&&path.includes('about'))||(i===3&&path.includes('contact'));return '<a class="mobile-tab'+(active?' is-active':'')+'" href="'+href+'"'+(active?' aria-current="page"':'')+'><i class="fa-solid '+icon+'" aria-hidden="true"></i><span>'+label+'</span></a>';}).join('');
 mount.outerHTML='<header class="site-header'+(isApp?' site-header--app':'')+'"><div class="site-header__inner">'+
 '<a class="site-brand" href="/" aria-label="ProTools home"><img class="site-brand__mark" src="/assets/images/protools-mark.svg" alt="" width="42" height="42"><span><strong>ProTools</strong><small>Convert Smarter. Work Faster.</small></span></a>'+
 '<nav class="site-nav" aria-label="Main navigation">'+nav+'</nav>'+controls+
